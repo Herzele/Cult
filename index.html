@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+</head>
+
+
+<body>
+<link rel="stylesheet" type="text/css" href="interface.css" />
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<div class="header">
+  <h1 id="gameTitle">Cult</h1>
+</div>
+
+
+<div class="ressources">
+  <div id="moneyDiv">Money : <span id="money"></span> + <span id="moneyPerSec"></span> / day</div> 
+  <div>Faith : <span id="faith"></span> + <span id="faithPerSec"></span> / day</div>
+  <div><span class="tooltip">Monthly bills : <span class="tooltiptext" id="ttSympathizer">Due the first day of each month.</span></span>
+  	<span id="bills"></span></div>
+  <div id="sympathizerDiv">------<br>
+  	Sympathizer : <span id="sympathizer"></span></div> 
+  <div id="liCultist">Cultist : <span id="cultist"></span></div> 
+  <div>------</div>
+  <div>Experience : <span id="experience"></span> + <span id="experiencePerSec"></span> / day</div>
+  <div>------</div>
+  <div id="control"><div class="tooltip">Control : <span id="controlValue"></span>% <span id="controlSign"></span><span id="controlPerSec"></span> / day
+	  <span class="tooltiptext" id="ttControl">You need to keep your flock together.<br>--------------<br> You current control allows for <span id="maxCultist"></span> cultists without risks.<br>--------------<br>Max control : <span id="controlMax"></span>%</span></div></div>
+	
+
+
+</div>
+
+<div class="interface">
+
+	<div class="tab">
+	  <button class="tablinks" id="actionsTab" onclick="openTab(event, 'Actions')">Actions</button>
+	  <button class="tablinks" id="faithProofsTab" onclick="openTab(event, 'Proofs of faith')">Proofs of faith</button>
+	  <button class="tablinks" id="humanRessourcesTab" onclick="openTab(event, 'Human Resources')">Human Resources</button>
+	  <button class="tablinks" id="investmentsTab" onclick="openTab(event, 'Investments')">Investments</button>
+	  <button class="tablinks" id="personnalTrainingTab" onclick="openTab(event, 'Personnal Training')">Personnal Training</button>
+	</div>
+
+	<div id="Actions" class="tabcontent">
+	  <button type="button" class="btn" id="btWork" onClick="changeWork('work')">
+	  	<div class="tooltip">Work
+	  	<span class="tooltiptext" id="ttWork">Waste your time for financiary gains.<br>--------------<br>Gain : 
+	  	<span id="moneyClickGain"></span> money.</span></div></button>
+	  <br>
+		<button type="button" class="btn" id="btPray" onClick="changeWork('pray')">
+		<div class="tooltip">Pray
+	  	<span class="tooltiptext" id="ttWork">Worship the Voice.<br>--------------<br>Gain : 
+	  	<span id="faithClickGain"></span> faith.</span></div></button>
+		<br>
+		<button type="button" class="btn" id="btRecruit" onClick="changeWork('recruit')">
+			<div class="tooltip">Recruit
+	  	<span class="tooltiptext" id="ttRecruit">Go out in the street and try to find new fidels.<br>--------------<br>Chance to recruit a sympathizer : 
+	  	<span id="recruitChance"></span>%</span></div></button><br>
+	  <button type="button" class="btn" id="btPreach" onClick="changeWork('preach')">
+			<div class="tooltip">Preach
+	  	<span class="tooltiptext" id="ttPreach">Preach in front of your faithfuls.<br>--------------<br>Gain : 
+	  	<span id="preachClickGain"></span> control per day.</span></div></button>
+		<br>
+	</div>
+
+
+	<div id="Human Resources" class="tabcontent">
+
+		<div id="cultistUpgrader">
+			<div>Convert to member : <button type="button" class="btn" id="btUpgradeToMember" onClick="convertPeople('sympathizer', 1)">
+				<div class="tooltip">+1
+				<span class="tooltiptext" id="ttConvertToCultist">Convert sympathizers into cultist.</span>
+				</div>	
+			</button></div>
+		</div>	
+
+		<div id="workerRepartition">
+			<div class="labels">
+				<div>Inactive : </div>
+				<div class="tooltip">Worker :
+	  			<span class="tooltiptext" id="ttWorker">Put your cultists to work.<br>--------------<br>Generates 
+	  			<span id="workerRevenu"></span> per day.</span>
+				</div>
+				<div>Priest : </div>
+			</div>
+			<div class="valueChanger">
+				<div id= "inactive">
+					<input class="valueInput" id="countInactive" type="text" value="0">
+				</div>
+				<div id="worker">
+					<button type="button" onClick="changeWorker(-1)">-</button>
+					<input class="valueInput" id="countWorker" type="text" value="0">
+					<button type="button" onClick="changeWorker(1)">+</button>
+				</div> 
+				<div id= "priest">
+					<button type="button" onClick="changePriest(-1)">-</button>
+					<input class="valueInput" id="countPriest" type="text" value="0">
+					<button type="button" onClick="changePriest(1)">+</button>
+				</div>
+			</div>	
+		</div>
+	</div>
+
+	<div id="Investments" class="tabcontent">
+			<div class="labels">
+				<span>Rooms : </span>
+			</div>
+			<div class="valueChanger">
+				<div id= "roomsChanger">
+					<button type="button" onClick="changeRooms(-1)">
+						<div class="tooltip">-<span class="tooltiptext" id="ttRoomsCost-"></span></div>
+					</button>
+					<input class= "valueInput" id="countRooms" type="text" value="0">
+					<button type="button" onClick="changeRooms(1)">
+						<div class="tooltip">+<span class="tooltiptext" id="ttRoomsCost+"></span></div>
+					</button>
+				</div>
+			</div>	
+	</div>
+
+	<div id="Personnal Training" class="tabcontent">
+		<button type="button" class="btn" id="btAskARaise" onclick="changeAskARaise()">
+			<div class="tooltip">Ask a raise
+	  	<span class="tooltiptext" id="ttAskARaise">Beg for a little more money.<br>--------------<br>
+	  		Increase your revenue by <span id="askARaiseGain"></span>%<br>--------------<br>
+	  		Cost : <span id="askARaiseCost"></span><span>xp</span>
+	  	</div>
+	  </button> 
+	</div>
+
+	<div id="Proofs of faith" class="tabcontent">
+		<button type="button" class="btn" id="btRevenueSharing" onclick="changeRevenueSharing()">
+			<div class="tooltip">Revenue Sharing
+				<span class="tooltiptext" id="ttRevenueSharing">Your sympathizers will share a small part of their revenues<br>--------------<br>
+	  		Increase your revenue by <span id="revenueSharingGain"></span> money per day and per sympathizer.<span></span><br>--------------<br>
+	  		Cost : 500 faith.
+			</div>	
+		</button>
+	</div>
+</div>
+
+<div class="logs">
+	<div> CONTROL </div>
+	<span>loss chance : </span><span id="testDisplay1"></span><br>
+	<span>roll : </span><span id="testDisplay2"></span><br>
+	<span id="dateJour"></span>
+	<br>
+	-------<br>
+	<span id="logsDisplay"></span>
+</div>
+
+
+</body>
+</html>
+
+
+
+
+
+<script type="text/javascript" src="main.js"></script>
