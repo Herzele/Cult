@@ -1,78 +1,81 @@
 
-var money = 0;
-var faith = 0;
-var experience = 0;
-var bills = 400;
+var v = {
+	money : 0,
+	faith : 0,
+	experience : 0,
+	bills : 400,
 
-var moneyPerWorkDay = 20;
-var faithPerWorkDay = 1;
+	moneyPerWorkDay : 20,
+	faithPerWorkDay : 1,
 
-var sympathizer = 0;
-var cultist = 0;
+	sympathizer : 0,
+	cultist : 0,
 
-var control = 1;
-var controlAttrition = -0.1;
-var controlGainPerSec = 0;
-var controlPerWorkDay = 1;
-var controlMax = 20;
-var isControlOn = "no"
-var controlEffectMultiplier = 1;
-var controlLossEffect = 0.1;
+	control : 1,
+	controlAttrition : -0.1,
+	controlGainPerSec : 0,
+	controlPerWorkDay : 1,
+  controlMax : 20,
+  isControlOn : "no",
+  controlEffectMultiplier : 1,
+  controlLossEffect : 0.1,
 
 
-var maxCultist = 0;
-var inactiveCultist = 0;
-var worker = 0;
-var priest = 0;
+  maxCultist : 0,
+  inactiveCultist : 0,
+  worker : 0,
+  priest : 0,
 
-var workerGain = 1;
-var priestGain = 1;
+  workerGain : 1,
+  priestGain : 1,
 
-var moneyPerSec = 0;
-var faithPerSec = 0;
-var experiencePerSec = 0;
+  moneyPerSec : 0,
+  faithPerSec : 0,
+  experiencePerSec : 0,
 
-var moneyMultiplier = 1;
-var faithMultiplier = 1;
-var experienceMultiplier = 1;
+  moneyMultiplier : 1,
+  faithMultiplier : 1,
+  experienceMultiplier : 1,
 
-var passiveFaith = 0.1;
-var passiveIncome = 0;
-var passiveExperience = 0;
+  passiveFaith : 0.1,
+  passiveIncome : 0,
+  passiveExperience : 0,
 
-var recruitChance = 10;
-var recruitNumber = 1;
+  recruitChance : 10,
+  recruitNumber : 1,
 
-var sympToCultCost = 1000;
+  sympToCultCost : 1000,
 
-var currentAction = "none";
 
-var options = {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+
+  daysElapsed: 0,
+
+  logsList : [],
+
+/* ----- UPGRADES v.----- */
+
+  revenueSharing : false,
+  revenueSharingCost : 500,
+  revenueSharingGain : 0.1,
+
+  askARaise : false,
+  askARaiseCost : 100,
+  askARaiseGain : 0.05,
+
+}
+
+options = {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
 };
-var dateJour = new Date(2000, 0, 1);
+
+
+var currentDay = new Date("01/01/2000");
 var dateString = "dateDuJour";
 
-var logsList = [];
-
-
-
-/* ----- UPGRADES VARIABLES ----- */
-
-var revenueSharing = false;
-var revenueSharingCost = 500;
-var revenueSharingGain = 0.1;
-
-var askARaise = false;
-var askARaiseCost = 100;
-var askARaiseGain = 0.05;
-
-
-
-
+var currentAction = "none";
 
 
 /* ----- LAUNCH ----- */
@@ -80,28 +83,31 @@ var askARaiseGain = 0.05;
 
 
 function initialize() {
-    inactiveCultist = cultist;
+
+		if (localStorage.getItem("save") !== null) {
+			loadGame();
+			currentDay.setDate(currentDay.getDate() + v.daysElapsed);
+		}
+
     // updateRoomsCost();
 
-    document.getElementById("experience").innerHTML = experience;
-    document.getElementById("sympathizer").innerHTML = sympathizer;
-    document.getElementById("maxCultist").innerHTML = maxCultist;
-    document.getElementById("controlMax").innerHTML = controlMax;
+    document.getElementById("experience").innerHTML = v.experience;
+    document.getElementById("sympathizer").innerHTML = v.sympathizer;
+    document.getElementById("maxCultist").innerHTML = v.maxCultist;
+    document.getElementById("controlMax").innerHTML = v.controlMax;
 
-    document.getElementById("moneyPerSec").innerHTML = moneyPerSec;
-    document.getElementById("faithPerSec").innerHTML = faithPerSec;
-    document.getElementById("bills").innerHTML = bills;
+    document.getElementById("moneyPerSec").innerHTML = v.moneyPerSec;
+    document.getElementById("faithPerSec").innerHTML = v.faithPerSec;
+    document.getElementById("bills").innerHTML = v.bills;
 
-    document.getElementById("moneyClickGain").innerHTML = moneyPerWorkDay;
-    document.getElementById("faithClickGain").innerHTML = faithPerWorkDay;
-    document.getElementById("recruitChance").innerHTML = recruitChance;
+    document.getElementById("moneyClickGain").innerHTML = v.moneyPerWorkDay;
+    document.getElementById("faithClickGain").innerHTML = v.faithPerWorkDay;
+    document.getElementById("recruitChance").innerHTML = v.recruitChance;
 
-    document.getElementById("askARaiseCost").innerHTML = askARaiseCost;
-    document.getElementById("askARaiseGain").innerHTML = (askARaiseGain * 100);
+    document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
+    document.getElementById("askARaiseGain").innerHTML = (v.askARaiseGain * 100);
 
-    document.getElementById("revenueSharingGain").innerHTML = revenueSharingGain;
-
-
+    document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
 
 }
 
@@ -135,14 +141,14 @@ function moveControlBar(value){
 function convertPeople(from, value){
 	switch(from){
 		case "sympathizer":
-		if (sympathizer > 0 && faith >= sympToCultCost){
-				sympathizer = sympathizer - value;
-				faith = faith - sympToCultCost;
-				cultist = cultist + value;
-				inactiveCultist = inactiveCultist + value;
-			document.getElementById("countInactive").value = numberFormating(inactiveCultist, 0);			
-			document.getElementById("sympathizer").innerHTML = numberFormating(sympathizer, 0);
-			document.getElementById("cultist").innerHTML = numberFormating(cultist, 0);
+		if (v.sympathizer > 0 && v.faith >= v.sympToCultCost){
+				v.sympathizer = v.sympathizer - v.value;
+				v.faith = v.faith - v.sympToCultCost;
+				v.cultist = v.cultist + value;
+				v.inactiveCultist = v.inactiveCultist + value;
+			document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);			
+			document.getElementById("sympathizer").innerHTML = numberFormating(v.sympathizer, 0);
+			document.getElementById("cultist").innerHTML = numberFormating(v.cultist, 0);
 		}
 		break;
 	}
@@ -150,24 +156,24 @@ function convertPeople(from, value){
 
 
 function changeWorker(value) {
-    if (inactiveCultist > 0 && value > 0 || value < 0 && worker > 0) {
-        worker = worker + value;
-        inactiveCultist = inactiveCultist - value;
+    if (v.inactiveCultist > 0 && value > 0 || value < 0 && v.worker > 0) {
+        v.worker = v.worker + value;
+        v.inactiveCultist = v.inactiveCultist - value;
         calcMoneyPerSec();
-        document.getElementById("countInactive").value = numberFormating(inactiveCultist, 0);
-        document.getElementById("countWorker").value = worker;
-        document.getElementById("inactiveCultist").innerHTML = inactiveCultist;
+        document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);
+        document.getElementById("countWorker").value = v.worker;
+        document.getElementById("inactiveCultist").innerHTML = v.inactiveCultist;
     }
 }
 
 function changePriest(value) {
-    if (inactiveCultist > 0 && value > 0 || value < 0 && priest > 0) {
-        priest = priest + value;
-        inactiveCultist = inactiveCultist - value;
+    if (v.inactiveCultist > 0 && value > 0 || value < 0 && v.priest > 0) {
+        v.priest = v.priest + value;
+        v.inactiveCultist = v.inactiveCultist - value;
         calcFaithPerSec();
-        document.getElementById("countInactive").value = numberFormating(inactiveCultist, 0);
-        document.getElementById("countPriest").value = priest;
-        document.getElementById("inactiveCultist").innerHTML = inactiveCultist;
+        document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);
+        document.getElementById("countPriest").value = v.priest;
+        document.getElementById("inactiveCultist").innerHTML = v.inactiveCultist;
     }
 }
 
@@ -238,20 +244,20 @@ function buyComputer(){
 /* ----- UPGRADES -----*/
 
 function changeRevenueSharing() {
-  if (experience > revenueSharingCost) {
-      experience = experience - revenueSharingCost;
-      passiveIncome = passiveIncome + revenueSharingGain;
+  if (v.experience > v.revenueSharingCost) {
+      v.experience = v.experience - v.revenueSharingCost;
+      v.passiveIncome = v.passiveIncome + v.revenueSharingGain;
       document.getElementById("btRevenueSharing").disabled = true;
   }
 }
 
 function changeAskARaise(){
-	if (experience > askARaiseCost){
-		experience = experience - askARaiseCost;
-		moneyMultiplier = moneyMultiplier * (askARaiseGain + 1) ;
-		moneyPerWorkDay = moneyPerWorkDay * moneyMultiplier;
-		askARaiseCost = askARaiseCost *2;
-		document.getElementById("askARaiseCost").innerHTML = askARaiseCost;
+	if (v.experience > v.askARaiseCost){
+		v.experience = v.experience - v.askARaiseCost;
+		v.moneyMultiplier = v.moneyMultiplier * (v.askARaiseGain + 1) ;
+		v.moneyPerWorkDay = v.moneyPerWorkDay * v.moneyMultiplier;
+		v.askARaiseCost = v.askARaiseCost *2;
+		document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
 	}
 }
 
@@ -261,42 +267,48 @@ function changeAskARaise(){
 
 function calcMoneyPerSec() {
     if (currentAction == "workForMoney") {
-        moneyPerSec = worker * workerGain + passiveIncome * sympathizer + moneyPerWorkDay;
+        v.moneyPerSec = v.worker * v.workerGain
+         + v.passiveIncome * v.sympathizer
+         + v.moneyPerWorkDay;
     } else {
-        moneyPerSec = worker * workerGain + passiveIncome * sympathizer;
+        v.moneyPerSec = v.worker * v.workerGain
+         + v.passiveIncome * v.sympathizer;
     }
-    document.getElementById("moneyPerSec").innerHTML = numberFormating(moneyPerSec, 1);
+    document.getElementById("moneyPerSec").innerHTML = numberFormating(v.moneyPerSec, 1);
 }
 
 function calcFaithPerSec() {
     if (currentAction == "workForFaith") {
-        faithPerSec = priest * priestGain + sympathizer * passiveFaith + faithPerWorkDay * faithMultiplier;
+        v.faithPerSec = v.priest * v.priestGain
+         + v.sympathizer * v.passiveFaith
+         + v.aithPerWorkDay * v.faithMultiplier;
     } else {
-        faithPerSec = priest * priestGain + sympathizer * passiveFaith;
+        v.faithPerSec = v.priest * v.priestGain
+         + v.sympathizer * v.passiveFaith;
     }
-    document.getElementById("faithPerSec").innerHTML = numberFormating(faithPerSec, 1);
+    document.getElementById("faithPerSec").innerHTML = numberFormating(v.faithPerSec, 1);
 }
 
 function calcControlPerSec() {
-    if (currentAction == "preach") {
-    	experiencePerSec = 1 * experienceMultiplier;
-    	controlGainPerSec = controlAttrition + controlPerWorkDay;
+    if (v.	currentAction == "preach") {
+    	v.experiencePerSec = 1 * v.experienceMultiplier;
+    	v.controlGainPerSec = v.controlAttrition + v.controlPerWorkDay;
    } else {
-   		controlGainPerSec = controlAttrition;
+   		v.controlGainPerSec = v.controlAttrition;
    }
-   if (controlGainPerSec > 0){
+   if (v.controlGainPerSec > 0){
    	document.getElementById("controlSign").innerHTML = "+";
    } 
-   maxCultist = control * controlEffectMultiplier;   
-   document.getElementById("controlPerSec").innerHTML = numberFormating(controlGainPerSec, 1);
-   document.getElementById("maxCultist").innerHTML = numberFormating(maxCultist, 0);
+   v.maxCultist = v.control * v.controlEffectMultiplier;   
+   document.getElementById("controlPerSec").innerHTML = numberFormating(v.controlGainPerSec, 1);
+   document.getElementById("maxCultist").innerHTML = numberFormating(v.maxCultist, 0);
 }
 
 function calcExperiencePerSec() {
     if (currentAction != "none") {
-    	experiencePerSec = 1 * experienceMultiplier;
+    	v.experiencePerSec = 1 * v.experienceMultiplier;
    }
-   document.getElementById("experiencePerSec").innerHTML = numberFormating(experiencePerSec, 1);
+   document.getElementById("experiencePerSec").innerHTML = numberFormating(v.experiencePerSec, 1);
 }
 
 
@@ -306,28 +318,28 @@ function calcRecruitmentPerSec(){
 }
 
 function autoGainMoney() {
-    money = money + moneyPerSec;
-    document.getElementById("money").innerHTML = numberFormating(money, 1);
+    v.money = v.money + v.moneyPerSec;
+    document.getElementById("money").innerHTML = numberFormating(v.money, 1);
 }
 
 function autoGainFaith() {
-    faith = faith + faithPerSec;
-    document.getElementById("faith").innerHTML = numberFormating(faith, 1);
+    v.faith = v.faith + v.faithPerSec;
+    document.getElementById("faith").innerHTML = numberFormating(v.faith, 1);
 }
 
 function autoGainExperience() {
-    experience = experience + experiencePerSec;
-    document.getElementById("experience").innerHTML = numberFormating(experience, 1);
+    v.experience = v.experience + v.experiencePerSec;
+    document.getElementById("experience").innerHTML = numberFormating(v.experience, 1);
 }
 
 function autoGainControl(){
-	if (control >= controlMax){
-		control = controlMax
+	if (v.control >= v.controlMax){
+		v.control = v.controlMax
 	} else {
-		control = control + controlGainPerSec;
+		v.control = v.control + v.controlGainPerSec;
 	}
-	document.getElementById("controlValue").innerHTML = numberFormating(control, 1)
-	if (control < cultist){
+	document.getElementById("controlValue").innerHTML = numberFormating(v.control, 1)
+	if (v.control < v.cultist){
 		document.getElementById("control").style.color = "red";
 	} else {
 		document.getElementById("control").style.color = "black";
@@ -337,24 +349,24 @@ function autoGainControl(){
 function autoRecruit(){
 	if (currentAction == "recruit"){
 		let roll = rollChances();
-	  if (roll <= recruitChance){
-	  	sympathizer = sympathizer + recruitNumber;
-	  	document.getElementById("sympathizer").innerHTML = numberFormating(sympathizer, 0);
+	  if (roll <= v.recruitChance){
+	  	v.sympathizer = v.sympathizer + v.recruitNumber;
+	  	document.getElementById("sympathizer").innerHTML = numberFormating(v.sympathizer, 0);
 	  }
 	}
 }
 
 
 function calcCultistLoss(){
-	let controlFinal = controlEffectMultiplier * control;
-	if(cultist >= controlFinal){
-		let cultistLossChance = (cultist - controlFinal);
+	let controlFinal = v.controlEffectMultiplier * v.control;
+	if(v.cultist >= controlFinal){
+		let cultistLossChance = (v.cultist - controlFinal);
 		let roll = rollChances();
 		document.getElementById("testDisplay1").innerHTML = cultistLossChance;
 		document.getElementById("testDisplay2").innerHTML = roll;
 		if(roll < cultistLossChance){
-			cultist = cultist -1;
-			document.getElementById("cultist").innerHTML = cultist;
+			v.cultist = v.cultist -1;
+			document.getElementById("cultist").innerHTML = v.cultist;
 			cultistRemover();
 		}
 	} 
@@ -362,27 +374,22 @@ function calcCultistLoss(){
 
 
 function cultistRemover(){
-	if(inactiveCultist>=0){
-		inactiveCultist = inactiveCultist - 1;
-		document.getElementById("countInactive").value = inactiveCultist;
-	} else if(worker > 0) {
-		worker = worker - 1;
-		document.getElementById("countWorker").value = worker;
-	} else if(priest > 0) {
-		priest = priest - 1;
-		document.getElementById("countPriest").value = priest;
+	if(v.inactiveCultist>=0){
+		v.inactiveCultist = v.inactiveCultist - 1;
+		document.getElementById("countInactive").value = v.inactiveCultist;
+	} else if(v.worker > 0) {
+		v.worker = v.worker - 1;
+		document.getElementById("countWorker").value = v.worker;
+	} else if(v.priest > 0) {
+		v.priest = v.priest - 1;
+		document.getElementById("countPriest").value = v.priest;
 	}
 }
 
-function addDay() {
-    dateJour.setDate(dateJour.getDate() + 1);
-    dateString = dateJour.getDate() + " / " + (dateJour.getMonth() + 1) + " / " + dateJour.getFullYear();
-    document.getElementById("dateJour").innerHTML = dateString;
-}
 
 function payBills() {
-    if (dateJour.getDate() == 1) {
-        money = money - bills;
+    if (currentDay.getDate() == 1) {
+        v.money = v.money - v.bills;
     }
 }
 
@@ -394,9 +401,9 @@ function numberFormating(value, decimals){
 
 function updateLogs(newLogString, whoSpeaks) {
     log = "";
-    logsList.push(newLogString);
-    for (let i = logsList.length - 1; i >= 0; i--) {
-        log += logsList[i] + "<br>";
+    v.logsList.push(newLogString);
+    for (let i = v.logsList.length - 1; i >= 0; i--) {
+        log += v.logsList[i] + "<br>";
     }
     document.getElementById("logsDisplay").innerHTML = log;
 }
@@ -409,13 +416,13 @@ function rollChances(){
 /* ----- EVENTS CHECKER -----*/
 
 function eventLogChecker() {
-    if (dateJour.getFullYear() == 2000 && dateJour.getDate() == 5 && dateJour.getMonth() == 0) {
+    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 5 && currentDay.getMonth() == 0) {
       updateLogs("My life is boring", "me");
     }
-    if (dateJour.getFullYear() == 2000 && dateJour.getDate() == 8 && dateJour.getMonth() == 0) {
+    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 8 && currentDay.getMonth() == 0) {
       updateLogs("I want more", "me");
     }
-    if (dateJour.getFullYear() == 2000 && dateJour.getDate() == 13 && dateJour.getMonth() == 0) {
+    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 13 && currentDay.getMonth() == 0) {
       updateLogs("I have more", "voice");
       $("#btPray").fadeIn(3000);
     }
@@ -423,38 +430,60 @@ function eventLogChecker() {
 
 function eventDisplayChecker() {
 	// Color indicators
-	if (money <= bills){
+	if (v.money <= v.bills){
 		document.getElementById("moneyDiv").style.color = "red";
 	} else {
 		document.getElementById("moneyDiv").style.color = "black"
 	}
-	if (experience >= 50) {
+	if (v.experience >= 50) {
     document.getElementById("personnalTrainingTab").style.display = "inline";
   }
-  if (faith > 49){
+  if (v.faith > 49){
   	document.getElementById("btRecruit").style.display = "inline";
   	document.getElementById("sympathizerDiv").style.display = "inline";
   }
-  if (sympathizer > 0){
+  if (v.sympathizer > 0){
   	document.getElementById("faithProofsTab").style.display = "inline";
   }
-  if (sympathizer > 9){
+  if (v.sympathizer > 9){
   	document.getElementById("humanRessourcesTab").style.display = "inline";
   }
 	// Buttons
-  if (askARaiseCost > experience){
+  if (v.askARaiseCost > v.experience){
 		document.getElementById("btAskARaise").disabled = true;
 	} else {
 		document.getElementById("btAskARaise").disabled = false;
 	}
   // Ressources
-  if (cultist > 0){
+  if (v.cultist > 0){
   	document.getElementById("liCultist").style.display = "inline";
   	document.getElementById("control").style.display = "inline";
   	document.getElementById("workerRepartition").style.display = "inline";
   	document.getElementById("btPreach").style.display = "inline";
-  	isControlOn="yes";
+  	v.isControlOn="yes";
   } 
+}
+
+function addDay() {
+	v.daysElapsed = v.daysElapsed + 1;
+  currentDay.setDate(currentDay.getDate() + 1);
+  dateString = currentDay.getDate() + " / " + (currentDay.getMonth() + 1) + " / " + currentDay.getFullYear();
+  document.getElementById("dateJour").innerHTML = dateString;
+}
+
+function saveGame() {
+	localStorage.setItem("save",JSON.stringify(v));
+	// document.getElementById("saveGameDisplay").innerHTML = Object.values(v);
+	}
+
+
+function loadGame(){
+	v = JSON.parse(localStorage.getItem("save"));
+	// document.getElementById("saveGameDisplay").innerHTML = Object.values(v);
+}
+
+function deleteSave(){
+	localStorage.removeItem("save");
 }
 
 
@@ -487,14 +516,16 @@ window.setInterval(function timeDay() {
     eventLogChecker();
     eventDisplayChecker();
 
-    if(isControlOn == "yes"){
+    if(v.isControlOn == "yes"){
     	calcControlPerSec();
     	autoGainControl();
-    	if(cultist > 0){
+    	if(v.cultist > 0){
     		calcCultistLoss();
     	}
     }
 
-
-
 }, 1000);
+
+window.setInterval(function timeDay(){
+	saveGame();
+}, 60000);
