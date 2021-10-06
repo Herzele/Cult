@@ -46,21 +46,45 @@ var v = {
 
   sympToCultCost : 1000,
 
-
+  timeMultiplier : 1,
 
   daysElapsed: 0,
 
   logsList : [],
 
-/* ----- UPGRADES v.----- */
+  isXpOn : false,
+
+/* ----- UPGRADES ----- */
 
   revenueSharing : false,
   revenueSharingCost : 500,
   revenueSharingGain : 0.1,
+  revenueSharingModif : "passiveIncome",
 
   askARaise : false,
+  askARaiseLevel : 0,
   askARaiseCost : 100,
   askARaiseGain : 0.05,
+  askARaiseModif : "moneyMultiplier",
+
+  buyComputer : false,
+  buyComputerGain : 10,
+  buyComputerCost : 500,
+  buyComputerModif : "recruitChance",
+
+  socialNetworking : false,
+  socialNetworkingGain : 10,
+  socialNetworkingCost : 500,
+  socialNetworkingModif : "recruitChance",
+
+  selfBetterment : false,
+  selfBettermentGain : 10,
+  selfBettermentCost : 500,
+  selfBettermentModif : "moneyPerSec",
+  selfBettermentMultiplier : 0,
+
+
+
 
 }
 
@@ -77,6 +101,7 @@ var dateString = "dateDuJour";
 
 var currentAction = "none";
 
+var modeTest = "no";
 
 /* ----- LAUNCH ----- */
 
@@ -89,7 +114,19 @@ function initialize() {
 			currentDay.setDate(currentDay.getDate() + v.daysElapsed);
 		}
 
-    // updateRoomsCost();
+		if (v.revenueSharing === true) {
+			document.getElementById("btRevenueSharing").disabled = true;
+		}
+		if (v.buyComputer === true){
+			document.getElementById("btBuyComputer").disabled = true;
+			document.getElementById("btsocialNetworking").style.display = "inline";
+		}
+		if (v.socialNetworking === true){
+			document.getElementById("btsocialNetworking").disabled = true;
+		}
+		if (v.selfBetterment === true){
+			document.getElementById("btSelfBetterment").disabled = true;
+		}
 
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
@@ -106,6 +143,8 @@ function initialize() {
 
     document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
     document.getElementById("askARaiseGain").innerHTML = (v.askARaiseGain * 100);
+
+    document.getElementById("buyComputerCost").innerHTML  = v.buyComputerCost;
 
     document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
 
@@ -142,7 +181,7 @@ function convertPeople(from, value){
 	switch(from){
 		case "sympathizer":
 		if (v.sympathizer > 0 && v.faith >= v.sympToCultCost){
-				v.sympathizer = v.sympathizer - v.value;
+				v.sympathizer = v.sympathizer - value;
 				v.faith = v.faith - v.sympToCultCost;
 				v.cultist = v.cultist + value;
 				v.inactiveCultist = v.inactiveCultist + value;
@@ -221,8 +260,16 @@ function buttonActivator(activeButton){
 /*----- INVESTMENTS -----*/
 
 function buyComputer(){
-
+	if(v.money >= v.buyComputerCost){
+		v.recruitChance = v.recruitChance + v.buyComputerGain;
+		v.money = v.money - v.buyComputerCost;
+		v.buyComputer = true;
+		document.getElementById("recruitChance").innerHTML = v.recruitChance;
+		document.getElementById("btBuyComputer").disabled = true;
+	}
 }
+
+
 
 // function changeRooms(value) {
 //     if (value > 0 && money > roomsCost || value < 1 && rooms > 0) {
@@ -244,20 +291,42 @@ function buyComputer(){
 /* ----- UPGRADES -----*/
 
 function changeRevenueSharing() {
-  if (v.experience > v.revenueSharingCost) {
-      v.experience = v.experience - v.revenueSharingCost;
+  if (v.faith >= v.revenueSharingCost) {
+      v.faith = v.faith - v.revenueSharingCost;
       v.passiveIncome = v.passiveIncome + v.revenueSharingGain;
       document.getElementById("btRevenueSharing").disabled = true;
+      v.revenueSharing = true;
   }
 }
 
 function changeAskARaise(){
-	if (v.experience > v.askARaiseCost){
+	if (v.experience >= v.askARaiseCost){
 		v.experience = v.experience - v.askARaiseCost;
 		v.moneyMultiplier = v.moneyMultiplier * (v.askARaiseGain + 1) ;
 		v.moneyPerWorkDay = v.moneyPerWorkDay * v.moneyMultiplier;
 		v.askARaiseCost = v.askARaiseCost *2;
+		askARaiseLevel = askARaiseLevel + 1;
 		document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
+		v.askARaise = true;
+	}
+}
+
+function socialNetworking(){
+	if(v.experience >= v.socialNetworkingCost){
+		v.experience = v.experience - v.socialNetworkingCost;
+		v.recruitChance = v.recruitChance + v.socialNetworkingGain;
+		socialNetworking = true;
+		document.getElementById('ttrecruitChance').innerHTML = v.recruitChance;
+		document.getElementById("btsocialNetworking").disabled = true;
+	}
+}
+
+
+function selfBetterment(){
+	if(v.experience >= v.selfBettermentCost){
+		v.experience = v.experience - v.selfBettermentCost;
+		v.selfBetterment = true;
+		document.getElementById("btSelfBetterment").disabled = true;
 	}
 }
 
@@ -265,14 +334,18 @@ function changeAskARaise(){
 
 /* ----- MOTEUR VROOM VROOM ----- */
 
+// Calculate every ressource
+
 function calcMoneyPerSec() {
     if (currentAction == "workForMoney") {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
-         + v.moneyPerWorkDay;
+         + v.moneyPerWorkDay
+         + (v.selfBettermentMultiplier * v.cultist); // if selfBetterment is not bought, or player isn't preaching, multiplier is 0.
     } else {
         v.moneyPerSec = v.worker * v.workerGain
-         + v.passiveIncome * v.sympathizer;
+         + v.passiveIncome * v.sympathizer
+         + (v.selfBettermentMultiplier * v.cultist); // if selfBetterment is not bought, or player isn't preaching, multiplier is 0.
     }
     document.getElementById("moneyPerSec").innerHTML = numberFormating(v.moneyPerSec, 1);
 }
@@ -281,7 +354,7 @@ function calcFaithPerSec() {
     if (currentAction == "workForFaith") {
         v.faithPerSec = v.priest * v.priestGain
          + v.sympathizer * v.passiveFaith
-         + v.aithPerWorkDay * v.faithMultiplier;
+         + v.faithPerWorkDay * v.faithMultiplier;
     } else {
         v.faithPerSec = v.priest * v.priestGain
          + v.sympathizer * v.passiveFaith;
@@ -290,11 +363,15 @@ function calcFaithPerSec() {
 }
 
 function calcControlPerSec() {
-    if (v.	currentAction == "preach") {
+  if (currentAction == "preach") {
     	v.experiencePerSec = 1 * v.experienceMultiplier;
-    	v.controlGainPerSec = v.controlAttrition + v.controlPerWorkDay;
+    	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay;
+    	if(selfBetterment == true){
+    		v.selfBettermentMultiplier = 1; // Activate money gain from selfBetterment upgrade.
+    	}
    } else {
-   		v.controlGainPerSec = v.controlAttrition;
+   		v.controlGainPerSec = v.controlAttrition * v.cultist;
+   		v.selfBettermentMultiplier = 0; // Deactivate money gain from preaching if action <> from "preach".
    }
    if (v.controlGainPerSec > 0){
    	document.getElementById("controlSign").innerHTML = "+";
@@ -313,33 +390,57 @@ function calcExperiencePerSec() {
 
 
 
+function calcCultistLoss(){
+	let controlFinal = v.controlEffectMultiplier * v.control;
+
+	if(v.control <= 0){
+		cultistRemover();
+		}
+
+	/* Roll version of the loss management. */
+
+	// if(v.cultist >= controlFinal){
+	// 	let cultistLossChance = (v.cultist - controlFinal);
+	// 	let roll = rollChances();
+	// 	document.getElementById("testDisplay1").innerHTML = cultistLossChance;
+	// 	document.getElementById("testDisplay2").innerHTML = roll;
+	// 	if(roll < cultistLossChance){
+	// 		v.cultist = v.cultist -1;
+	// 		document.getElementById("cultist").innerHTML = v.cultist;
+	// 		cultistRemover();
+	// 	}
+	// } 
+	}
+
+
 function calcRecruitmentPerSec(){
 
 }
 
+// Add the current gain/loss to each ressource
+
 function autoGainMoney() {
-    v.money = v.money + v.moneyPerSec;
+    v.money = v.money + v.moneyPerSec * v.timeMultiplier;
     document.getElementById("money").innerHTML = numberFormating(v.money, 1);
 }
 
 function autoGainFaith() {
-    v.faith = v.faith + v.faithPerSec;
+    v.faith = v.faith + v.faithPerSec * v.timeMultiplier;
     document.getElementById("faith").innerHTML = numberFormating(v.faith, 1);
 }
 
 function autoGainExperience() {
-    v.experience = v.experience + v.experiencePerSec;
+    v.experience = v.experience + v.experiencePerSec * v.timeMultiplier;
     document.getElementById("experience").innerHTML = numberFormating(v.experience, 1);
 }
 
 function autoGainControl(){
+	v.control = v.control + v.controlGainPerSec;
 	if (v.control >= v.controlMax){
-		v.control = v.controlMax
-	} else {
-		v.control = v.control + v.controlGainPerSec;
+		v.control = v.controlMax;
 	}
 	document.getElementById("controlValue").innerHTML = numberFormating(v.control, 1)
-	if (v.control < v.cultist){
+	if (v.control < 0){
 		document.getElementById("control").style.color = "red";
 	} else {
 		document.getElementById("control").style.color = "black";
@@ -350,31 +451,18 @@ function autoRecruit(){
 	if (currentAction == "recruit"){
 		let roll = rollChances();
 	  if (roll <= v.recruitChance){
-	  	v.sympathizer = v.sympathizer + v.recruitNumber;
+	  	v.sympathizer = v.sympathizer + v.recruitNumber * v.timeMultiplier;
 	  	document.getElementById("sympathizer").innerHTML = numberFormating(v.sympathizer, 0);
 	  }
 	}
 }
 
 
-function calcCultistLoss(){
-	let controlFinal = v.controlEffectMultiplier * v.control;
-	if(v.cultist >= controlFinal){
-		let cultistLossChance = (v.cultist - controlFinal);
-		let roll = rollChances();
-		document.getElementById("testDisplay1").innerHTML = cultistLossChance;
-		document.getElementById("testDisplay2").innerHTML = roll;
-		if(roll < cultistLossChance){
-			v.cultist = v.cultist -1;
-			document.getElementById("cultist").innerHTML = v.cultist;
-			cultistRemover();
-		}
-	} 
-}
-
 
 function cultistRemover(){
-	if(v.inactiveCultist>=0){
+	v.cultist = v.cultist - 1;
+
+	if(v.inactiveCultist > 0){
 		v.inactiveCultist = v.inactiveCultist - 1;
 		document.getElementById("countInactive").value = v.inactiveCultist;
 	} else if(v.worker > 0) {
@@ -413,6 +501,7 @@ function rollChances(){
 	return roll;
 }
 
+
 /* ----- EVENTS CHECKER -----*/
 
 function eventLogChecker() {
@@ -435,12 +524,10 @@ function eventDisplayChecker() {
 	} else {
 		document.getElementById("moneyDiv").style.color = "black"
 	}
-	if (v.experience >= 50) {
+	// Tabs
+	if (v.experience >= 50 || v.isXpOn == true) {
     document.getElementById("personnalTrainingTab").style.display = "inline";
-  }
-  if (v.faith > 49){
-  	document.getElementById("btRecruit").style.display = "inline";
-  	document.getElementById("sympathizerDiv").style.display = "inline";
+    v.isXpOn = true;
   }
   if (v.sympathizer > 0){
   	document.getElementById("faithProofsTab").style.display = "inline";
@@ -448,11 +535,24 @@ function eventDisplayChecker() {
   if (v.sympathizer > 9){
   	document.getElementById("humanRessourcesTab").style.display = "inline";
   }
+  if (v.money >= 2000){
+  	document.getElementById("investmentsTab").style.display = "inline";
+  }
+  // Divs 
+  if (v.faith > 49){
+  	document.getElementById("btRecruit").style.display = "inline";
+  	document.getElementById("sympathizerDiv").style.display = "inline";
+  }
 	// Buttons
   if (v.askARaiseCost > v.experience){
 		document.getElementById("btAskARaise").disabled = true;
 	} else {
 		document.getElementById("btAskARaise").disabled = false;
+	}
+	if (socialNetworking == false && v.experience >= v.socialNetworkingCost){
+		document.getElementById("btsocialNetworking").disabled = false;
+	} else {
+		document.getElementById("btsocialNetworking").disabled = true;
 	}
   // Ressources
   if (v.cultist > 0){
@@ -462,6 +562,9 @@ function eventDisplayChecker() {
   	document.getElementById("btPreach").style.display = "inline";
   	v.isControlOn="yes";
   } 
+  if (currentDay.getFullYear() >= 2000 && currentDay.getDate() >= 17 && currentDay.getMonth() >= 0){
+  	document.getElementById("btPray").style.display = "inline";
+  }
 }
 
 function addDay() {
@@ -495,6 +598,18 @@ function deleteSave(){
 //     document.getElementById("ttRoomsCost+").innerHTML = ((rooms + 1) * roomsBaseCost);
 // }
 
+
+function activateTestMode(){
+	if(modeTest === "no"){
+		v.timeMultiplier = 1000;
+		modeTest = "yes"
+		document.getElementById("saveGameDisplay").innerHTML = modeTest;
+	} else {
+		v.timeMultiplier = 1;
+		modeTest = "no"
+		document.getElementById("saveGameDisplay").innerHTML = modeTest;
+	}
+}
 
 
 window.setInterval(function timeDay() {

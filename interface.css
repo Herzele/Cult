@@ -32,6 +32,8 @@
   border: 1px solid black;
 }
 
+
+
 .tooltip .tooltiptext {
   visibility: hidden;
   width: 15%;
@@ -39,11 +41,15 @@
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 2px;
+  padding-top: 5px;
+  padding-right: 2px;
+  padding-bottom: 5px;
+  padding-left: 2px;
 
   /* Position the tooltip */
   position: absolute;
   z-index: 1;
+  display: inline-block;
 }
 
 .tooltip:hover .tooltiptext {
@@ -55,6 +61,9 @@
   text-align: center;
 }
 
+#btTestMode{
+  display: none;
+}
 
 
 /* -------------------- RESSOURCES -------------------- */
@@ -125,6 +134,16 @@
   margin-right: 1%;
 
 }
+
+/* -------------------- UPGRADES -------------------- */
+#btsocialNetworking{
+  display: none;
+}
+
+#btSelfBetterment{
+  display: none;
+}
+
 /* -------------------- TABS -------------------- */
 
 /* Style the tab */
