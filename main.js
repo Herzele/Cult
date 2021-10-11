@@ -105,6 +105,7 @@ var modeTest = "no";
 
 
 function initialize() {
+    document.body.style.zoom = 0.7;
 
 	if (localStorage.getItem("save") !== null) {
 		loadGame();
