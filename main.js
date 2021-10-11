@@ -371,12 +371,10 @@ function calcControlPerSec() {
     	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay;
     	if(v.selfBetterment === true){
     		v.selfBettermentMultiplier = 1; // Activate money gain from selfBetterment upgrade.
-            document.getElementById("saveGameDisplay").innerHTML = v.selfBettermentMultiplier;
     	}
    } else {
    		v.controlGainPerSec = v.controlAttrition * v.cultist;
    		v.selfBettermentMultiplier = 0; // Deactivate money gain from preaching if action <> from "preach".
-        document.getElementById("saveGameDisplay").innerHTML = "NOPE";
    }
    if (v.controlGainPerSec > 0){
    	document.getElementById("controlSign").innerHTML = "+";
