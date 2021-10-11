@@ -1,25 +1,24 @@
 
 var v = {
-	money : 0,
-	faith : 0,
-	experience : 0,
-	bills : 400,
+  money : 0,
+  faith : 0,
+  experience : 0,
+  bills : 400,
 
-	moneyPerWorkDay : 20,
-	faithPerWorkDay : 1,
+  moneyPerWorkDay : 20,
+  faithPerWorkDay : 1,
 
-	sympathizer : 0,
-	cultist : 0,
+  sympathizer : 0,
+  cultist : 0,
 
-	control : 1,
-	controlAttrition : -0.1,
-	controlGainPerSec : 0,
-	controlPerWorkDay : 1,
+  control : 10,
+  controlAttrition : -0.1,
+  controlGainPerSec : 0,
+  controlPerWorkDay : 1,
   controlMax : 20,
   isControlOn : "no",
   controlEffectMultiplier : 1,
   controlLossEffect : 0.1,
-
 
   maxCultist : 0,
   inactiveCultist : 0,
@@ -79,11 +78,9 @@ var v = {
 
   selfBetterment : false,
   selfBettermentGain : 10,
-  selfBettermentCost : 500,
+  selfBettermentCost : 2000,
   selfBettermentModif : "moneyPerSec",
   selfBettermentMultiplier : 0,
-
-
 
 
 }
@@ -109,29 +106,34 @@ var modeTest = "no";
 
 function initialize() {
 
-		if (localStorage.getItem("save") !== null) {
-			loadGame();
-			currentDay.setDate(currentDay.getDate() + v.daysElapsed);
-		}
+	if (localStorage.getItem("save") !== null) {
+		loadGame();
+		currentDay.setDate(currentDay.getDate() + v.daysElapsed);
+	}
 
-		if (v.revenueSharing === true) {
-			document.getElementById("btRevenueSharing").disabled = true;
-		}
-		if (v.buyComputer === true){
-			document.getElementById("btBuyComputer").disabled = true;
-			document.getElementById("btsocialNetworking").style.display = "inline";
-		}
-		if (v.socialNetworking === true){
-			document.getElementById("btsocialNetworking").disabled = true;
-		}
-		if (v.selfBetterment === true){
-			document.getElementById("btSelfBetterment").disabled = true;
-		}
+	if (v.revenueSharing === true) {
+		document.getElementById("btRevenueSharing").disabled = true;
+	}
+	if (v.buyComputer === true){
+		document.getElementById("btBuyComputer").disabled = true;
+		document.getElementById("btsocialNetworking").style.display = "inline";
+	}
+	if (v.socialNetworking === true){
+		document.getElementById("btsocialNetworking").disabled = true;
+	}
+	if (v.selfBetterment === true){
+		document.getElementById("btSelfBetterment").disabled = true;
+	}
+
 
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
     document.getElementById("maxCultist").innerHTML = v.maxCultist;
     document.getElementById("controlMax").innerHTML = v.controlMax;
+    document.getElementById("cultist").innerHTML = v.cultist;
+    document.getElementById("countWorker").value = v.worker;
+    document.getElementById("countPriest").value = v.priest;
+    document.getElementById("countInactive").value = v.inactiveCultist;
 
     document.getElementById("moneyPerSec").innerHTML = v.moneyPerSec;
     document.getElementById("faithPerSec").innerHTML = v.faithPerSec;
@@ -143,6 +145,7 @@ function initialize() {
 
     document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
     document.getElementById("askARaiseGain").innerHTML = (v.askARaiseGain * 100);
+    document.getElementById("cultistUpgradeCost").innerHTML = v.sympToCultCost;
 
     document.getElementById("buyComputerCost").innerHTML  = v.buyComputerCost;
 
@@ -323,8 +326,8 @@ function socialNetworking(){
 
 
 function selfBetterment(){
-	if(v.experience >= v.selfBettermentCost){
-		v.experience = v.experience - v.selfBettermentCost;
+	if(v.faith >= v.selfBettermentCost){
+		v.faith = v.faith - v.selfBettermentCost;
 		v.selfBetterment = true;
 		document.getElementById("btSelfBetterment").disabled = true;
 	}
@@ -341,7 +344,6 @@ function calcMoneyPerSec() {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
          + v.moneyPerWorkDay
-         + (v.selfBettermentMultiplier * v.cultist); // if selfBetterment is not bought, or player isn't preaching, multiplier is 0.
     } else {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
@@ -366,12 +368,14 @@ function calcControlPerSec() {
   if (currentAction == "preach") {
     	v.experiencePerSec = 1 * v.experienceMultiplier;
     	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay;
-    	if(selfBetterment == true){
+    	if(v.selfBetterment === true){
     		v.selfBettermentMultiplier = 1; // Activate money gain from selfBetterment upgrade.
+            document.getElementById("saveGameDisplay").innerHTML = v.selfBettermentMultiplier;
     	}
    } else {
    		v.controlGainPerSec = v.controlAttrition * v.cultist;
    		v.selfBettermentMultiplier = 0; // Deactivate money gain from preaching if action <> from "preach".
+        document.getElementById("saveGameDisplay").innerHTML = "NOPE";
    }
    if (v.controlGainPerSec > 0){
    	document.getElementById("controlSign").innerHTML = "+";
@@ -461,7 +465,7 @@ function autoRecruit(){
 
 function cultistRemover(){
 	v.cultist = v.cultist - 1;
-
+    document.getElementById("cultist").innerHTML = v.cultist;
 	if(v.inactiveCultist > 0){
 		v.inactiveCultist = v.inactiveCultist - 1;
 		document.getElementById("countInactive").value = v.inactiveCultist;
@@ -501,6 +505,10 @@ function rollChances(){
 	return roll;
 }
 
+function noMoney(){
+    changeWork;
+}
+
 
 /* ----- EVENTS CHECKER -----*/
 
@@ -518,16 +526,17 @@ function eventLogChecker() {
 }
 
 function eventDisplayChecker() {
-	// Color indicators
-	if (v.money <= v.bills){
-		document.getElementById("moneyDiv").style.color = "red";
-	} else {
-		document.getElementById("moneyDiv").style.color = "black"
-	}
-	// Tabs
-	if (v.experience >= 50 || v.isXpOn == true) {
+  // Color indicators
+  if (v.money <= v.bills){
+  	document.getElementById("moneyDiv").style.color = "red";
+  } else {
+   	document.getElementById("moneyDiv").style.color = "black"
+  }
+
+  // Tabs
+  if (v.experience >= 50 || v.isXpOn == true) {
     document.getElementById("personnalTrainingTab").style.display = "inline";
-    v.isXpOn = true;
+  v.isXpOn = true;
   }
   if (v.sympathizer > 0){
   	document.getElementById("faithProofsTab").style.display = "inline";
@@ -538,25 +547,41 @@ function eventDisplayChecker() {
   if (v.money >= 2000){
   	document.getElementById("investmentsTab").style.display = "inline";
   }
+
+
   // Divs 
   if (v.faith > 49){
   	document.getElementById("btRecruit").style.display = "inline";
   	document.getElementById("sympathizerDiv").style.display = "inline";
   }
-	// Buttons
+
+
+  // Upgrades, display buttons if stage is reached
+  if(v.cultist > 0){
+    document.getElementById("btSelfBetterment").style.display = "inline";
+  }
+
+
+  // Upgrades, enable button if you have enough ressources.
   if (v.askARaiseCost > v.experience){
-		document.getElementById("btAskARaise").disabled = true;
-	} else {
-		document.getElementById("btAskARaise").disabled = false;
-	}
-	if (socialNetworking == false && v.experience >= v.socialNetworkingCost){
-		document.getElementById("btsocialNetworking").disabled = false;
-	} else {
-		document.getElementById("btsocialNetworking").disabled = true;
-	}
+    document.getElementById("btAskARaise").disabled = true;
+  } else {
+    document.getElementById("btAskARaise").disabled = false;
+  }
+
+  if (socialNetworking == false && v.experience >= v.socialNetworkingCost){
+    document.getElementById("btsocialNetworking").disabled = false;
+  } else {
+    document.getElementById("btsocialNetworking").disabled = true;
+  }
+  if(v.revenueSharingCost > v.faith){
+    document.getElementById("btRevenueSharing").disabled = true;
+  }
+
+
   // Ressources
   if (v.cultist > 0){
-  	document.getElementById("liCultist").style.display = "inline";
+  	document.getElementById("cultistDiv").style.display = "inline";
   	document.getElementById("control").style.display = "inline";
   	document.getElementById("workerRepartition").style.display = "inline";
   	document.getElementById("btPreach").style.display = "inline";
@@ -637,6 +662,10 @@ window.setInterval(function timeDay() {
     	if(v.cultist > 0){
     		calcCultistLoss();
     	}
+    }
+
+    if(v.money <= 0 && currentAction !== "workForMoney"){
+        changeWork("work");
     }
 
 }, 1000);

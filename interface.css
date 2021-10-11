@@ -10,6 +10,7 @@
 
 .ressources {
   width: 20%;
+  height: 90%;
   float: left;
   padding: 15px;
   border: 1px solid black;
@@ -17,6 +18,7 @@
 
 .interface {
   width: 58%;
+  height: 90%;
   float: left;
   padding: 15px;
   border: 1px solid black;
@@ -27,11 +29,20 @@
 
 .logs {
   width: 20%;
+  height: 90%;
   float: left;
   padding: 15px;
   border: 1px solid black;
 }
 
+.bottomBar {
+  height: 8%;
+  width: 99%;
+  position: fixed;
+  bottom: 1%;
+  left: 0.5%;
+  border: 1px solid black;
+}
 
 
 .tooltip .tooltiptext {
@@ -104,6 +115,15 @@
 
 .btn{
   width: 15%;
+}
+
+.btnSmall{
+  width: 8%;
+}
+
+#btSave, #btDelete{
+  float: right;
+  display: inline-block;
 }
 
 /* -------------------- HUMAN RESSOURCES -------------------- */
