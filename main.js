@@ -142,6 +142,7 @@ function initialize() {
 
     document.getElementById("moneyClickGain").innerHTML = v.moneyPerWorkDay;
     document.getElementById("faithClickGain").innerHTML = v.faithPerWorkDay;
+    document.getElementById("preachClickGain").innerHTML = v.controlPerWorkDay;
     document.getElementById("recruitChance").innerHTML = v.recruitChance;
 
     document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
@@ -309,7 +310,7 @@ function changeAskARaise(){
 		v.moneyMultiplier = v.moneyMultiplier * (v.askARaiseGain + 1) ;
 		v.moneyPerWorkDay = v.moneyPerWorkDay * v.moneyMultiplier;
 		v.askARaiseCost = v.askARaiseCost *2;
-		askARaiseLevel = askARaiseLevel + 1;
+		v.askARaiseLevel = v.askARaiseLevel + 1;
 		document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
 		v.askARaise = true;
 	}
@@ -417,7 +418,11 @@ function calcCultistLoss(){
 
 
 function calcRecruitmentPerSec(){
-
+    if(currentAction === "recruit"){
+        document.getElementById("currentlyRecruiting").innerHTML = "Recruiting...";
+    } else {
+        document.getElementById("currentlyRecruiting").innerHTML = " ";
+    }
 }
 
 // Add the current gain/loss to each ressource
@@ -451,7 +456,7 @@ function autoGainControl(){
 }
 
 function autoRecruit(){
-	if (currentAction == "recruit"){
+	if (currentAction === "recruit"){
 		let roll = rollChances();
 	  if (roll <= v.recruitChance){
 	  	v.sympathizer = v.sympathizer + v.recruitNumber * v.timeMultiplier;
@@ -494,7 +499,12 @@ function updateLogs(newLogString, whoSpeaks) {
     log = "";
     v.logsList.push(newLogString);
     for (let i = v.logsList.length - 1; i >= 0; i--) {
-        log += v.logsList[i] + "<br>";
+        if(whoSpeaks === "me"){
+          log += "<span class='meTalking'>" + v.logsList[i] + "</span><br>";
+        } else {
+          log += "<span class='otherTalking'>" + v.logsList[i] + "</span><br>";  
+        }
+        
     }
     document.getElementById("logsDisplay").innerHTML = log;
 }
@@ -576,6 +586,11 @@ function eventDisplayChecker() {
   if(v.revenueSharingCost > v.faith){
     document.getElementById("btRevenueSharing").disabled = true;
   }
+  if(v.faith >= v.sympToCultCost){
+    document.getElementById("btUpgradeToMember").disabled = false;
+  } else {
+    document.getElementById("btUpgradeToMember").disabled = true;
+  }
 
 
   // Ressources
@@ -592,7 +607,7 @@ function eventDisplayChecker() {
 }
 
 function addDay() {
-	v.daysElapsed = v.daysElapsed + 1;
+  v.daysElapsed = v.daysElapsed + 1;
   currentDay.setDate(currentDay.getDate() + 1);
   dateString = currentDay.getDate() + " / " + (currentDay.getMonth() + 1) + " / " + currentDay.getFullYear();
   document.getElementById("dateJour").innerHTML = dateString;

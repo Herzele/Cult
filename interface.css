@@ -126,6 +126,10 @@
   display: inline-block;
 }
 
+#currentlyRecruiting{
+  font-style: italic;
+}
+
 /* -------------------- HUMAN RESSOURCES -------------------- */
 
 #workerRepartition{
@@ -219,4 +223,14 @@
 
 #faithProofsTab{
   display: none;
+}
+
+
+/* -------------------- LOGS -------------------- */
+.meTalking{
+
+}
+
+.otherTalking{
+  
 }
