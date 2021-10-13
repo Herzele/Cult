@@ -148,7 +148,7 @@ function initialize() {
         document.getElementById("sympathizerDiv").style.display = "inline";
     }
 
-    document.getElementById("saveGameDisplay").innerHTML = v.oRevenueSharing.cost;
+    // document.getElementById("saveGameDisplay").innerHTML = v.oRevenueSharing.cost;
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
     document.getElementById("maxCultist").innerHTML = v.maxCultist;
