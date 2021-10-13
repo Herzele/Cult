@@ -72,6 +72,22 @@
   text-align: center;
 }
 
+/* -------------------- HEADER -------------------- */
+.header{
+  position: relative;
+
+}
+
+#gameTitle{
+  font-size: 36px;
+}
+
+#dateJour{
+  float: right;
+  padding-top: 1%;
+  font-size: 18px;
+}
+
 #btTestMode{
   display: none;
 }
@@ -168,6 +184,10 @@
   display: none;
 }
 
+#btIncreasedWorkHour{
+  display: none;
+}
+
 /* -------------------- TABS -------------------- */
 
 /* Style the tab */
@@ -228,9 +248,12 @@
 
 /* -------------------- LOGS -------------------- */
 .meTalking{
-
+  font-size: 12;
+  font-style: italic;
 }
 
 .otherTalking{
-  
+  font-family: Lucida Handwriting; 
+  font-size: 16;
+  font-style: italic;
 }

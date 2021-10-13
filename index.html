@@ -22,8 +22,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <div class="header">
-  <h1 id="gameTitle">Cult</h1>
+  <span id="gameTitle">Cult</span>
   <button type="button" id="btTestMode" onclick="activateTestMode()">TEST MODE</button>
+  <span id="dateJour"></span>
 </div>
 
 
@@ -186,6 +187,14 @@
 	  	</span>
 	  </span>
 
+	  <span class="tooltip">
+	  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="increasedWorkHour()">Increased Work Hours</button> 
+	  	<span class="tooltiptext" id="ttIncreasedWorkHour">Working keeps your flock happy.<br>--------------<br>
+	  		Max control is raised by 10%, worker revenue is increased by 50%<br>--------------<br>
+	  		Cost : <span id="increasedWorkHourCost"></span> faith.
+	  	</span>
+	  </span>
+
 	</div>
 
 
@@ -197,18 +206,15 @@
 
 
 <div class="logs">
-
-	<span id="dateJour"></span>
-	<br>-------<br>
 	<span id="logsDisplay"></span>
 	<span id="saveGameDisplay"></span>
 </div>
 
 
 <div class="bottomBar">
-	
+
 	<div><button type="button" class="btnSmall" id="btSave" onclick="saveGame()">SAVE</button></div>
-	<div><button type="button" class="btnSmall" id="btDelete" onclick="deleteSave()">DELETE</button></div>
+	<div><button type="button" class="btnSmall" id="btDelete" onclick="deleteSave()">Hard Reset</button></div>
 
 </div>
 

@@ -51,9 +51,18 @@ var v = {
 
   logsList : [],
 
+  recruitPhase : false,
   isXpOn : false,
 
 /* ----- UPGRADES ----- */
+  
+  // oRevenueSharing : {
+  //   bought : false,
+  //   cost : 500,
+  //   gain : 0.1,
+  //   modif : "passiveIncome",
+  //   btName : "btRevenueSharing",
+  // }
 
   revenueSharing : false,
   revenueSharingCost : 500,
@@ -81,6 +90,11 @@ var v = {
   selfBettermentCost : 2000,
   selfBettermentModif : "moneyPerSec",
   selfBettermentMultiplier : 0,
+
+  increasedWorkHour : false,
+  increasedWorkHourGainC : 10,
+  increasedWorkHourGainM : 0.5,
+  increasedWorkHourCost : 50000,
 
 
 }
@@ -125,8 +139,16 @@ function initialize() {
 	if (v.selfBetterment === true){
 		document.getElementById("btSelfBetterment").disabled = true;
 	}
+    if (v.increasedWorkHour == true){
+        document.getElementById("btIncreasedWorkHour").disabled = true;
+    }
 
+    if (v.recruitPhase == true){
+        document.getElementById("btRecruit").style.display = "inline";
+        document.getElementById("sympathizerDiv").style.display = "inline";
+    }
 
+    document.getElementById("saveGameDisplay").innerHTML = v.oRevenueSharing.cost;
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
     document.getElementById("maxCultist").innerHTML = v.maxCultist;
@@ -320,7 +342,7 @@ function socialNetworking(){
 	if(v.experience >= v.socialNetworkingCost){
 		v.experience = v.experience - v.socialNetworkingCost;
 		v.recruitChance = v.recruitChance + v.socialNetworkingGain;
-		socialNetworking = true;
+		v.socialNetworking = true;
 		document.getElementById('ttrecruitChance').innerHTML = v.recruitChance;
 		document.getElementById("btsocialNetworking").disabled = true;
 	}
@@ -335,6 +357,16 @@ function selfBetterment(){
 	}
 }
 
+function increasedWorkHour(){
+    if(v.faith >= v.increasedWorkHourCost){
+        v.increasedWorkHour = true;
+        v.faith = v.faith - v.increasedWorkHourCost;
+        v.moneyPerWorkDay = v.moneyPerWorkDay * (1 + v.increasedWorkHourGainM);
+        v.controlMax = v.controlMax + increasedWorkHourGainC;
+        document.getElementById("saveGameDisplay").innerHTML = v.moneyPerWorkDay;
+        document.getElementById("btIncreasedWorkHour").disabled = true;
+    }
+}
 
 
 /* ----- MOTEUR VROOM VROOM ----- */
@@ -497,14 +529,15 @@ function numberFormating(value, decimals){
 
 function updateLogs(newLogString, whoSpeaks) {
     log = "";
-    v.logsList.push(newLogString);
-    for (let i = v.logsList.length - 1; i >= 0; i--) {
-        if(whoSpeaks === "me"){
-          log += "<span class='meTalking'>" + v.logsList[i] + "</span><br>";
+    stringToPush = "";
+    if(whoSpeaks == "me"){
+          stringToPush = "<span class='meTalking'>" + newLogString + "</span><br>";
         } else {
-          log += "<span class='otherTalking'>" + v.logsList[i] + "</span><br>";  
+          stringToPush = "<span class='otherTalking'>" + newLogString + "</span><br>";  
         }
-        
+    v.logsList.push(stringToPush);
+    for (let i = v.logsList.length - 1; i >= 0; i--) {
+        log += v.logsList[i];
     }
     document.getElementById("logsDisplay").innerHTML = log;
 }
@@ -521,16 +554,19 @@ function noMoney(){
 
 /* ----- EVENTS CHECKER -----*/
 
-function eventLogChecker() {
-    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 5 && currentDay.getMonth() == 0) {
+function logUpdateTimer() {
+    if (v.daysElapsed == 30) {
       updateLogs("My life is boring", "me");
     }
-    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 8 && currentDay.getMonth() == 0) {
+    if (v.daysElapsed == 60) {
       updateLogs("I want more", "me");
     }
-    if (currentDay.getFullYear() == 2000 && currentDay.getDate() == 13 && currentDay.getMonth() == 0) {
+    if (v.daysElapsed == 70) {
       updateLogs("I have more", "voice");
       $("#btPray").fadeIn(3000);
+    }
+    if (v.daysElapsed == 80) {
+      updateLogs("Pray me.", "voice");
     }
 }
 
@@ -559,16 +595,24 @@ function eventDisplayChecker() {
 
 
   // Divs 
-  if (v.faith > 49){
+  if (v.faith > 49 && v.recruitPhase != true){
+    v.recruitPhase = true;
   	document.getElementById("btRecruit").style.display = "inline";
   	document.getElementById("sympathizerDiv").style.display = "inline";
+    updateLogs("Go, Sheperd, and gather your flock", "voice"); 
   }
 
 
   // Upgrades, display buttons if stage is reached
   if(v.cultist > 0){
     document.getElementById("btSelfBetterment").style.display = "inline";
+    document.getElementById("btIncreasedWorkHour").style.display = "inline"
   }
+
+  if(v.recruitPhase == true){
+    document.getElementById('btBuyComputer').style.display = "inline";
+  }
+
 
 
   // Upgrades, enable button if you have enough ressources.
@@ -578,18 +622,34 @@ function eventDisplayChecker() {
     document.getElementById("btAskARaise").disabled = false;
   }
 
-  if (socialNetworking == false && v.experience >= v.socialNetworkingCost){
+  if (v.money >= v.buyComputerCost && v.buyComputer == false){
+    document.getElementById('btBuyComputer').disabled = false;
+  } else {
+    document.getElementById("btBuyComputer").disabled = true;
+  }
+
+  if (v.socialNetworking == false && v.experience >= v.socialNetworkingCost){
     document.getElementById("btsocialNetworking").disabled = false;
   } else {
     document.getElementById("btsocialNetworking").disabled = true;
   }
-  if(v.revenueSharingCost > v.faith){
+
+  if(v.revenueSharing == false && v.faith >= v.revenueSharingCost){
+    document.getElementById("btRevenueSharing").disabled = false;
+  } else {
     document.getElementById("btRevenueSharing").disabled = true;
   }
+
   if(v.faith >= v.sympToCultCost){
     document.getElementById("btUpgradeToMember").disabled = false;
   } else {
     document.getElementById("btUpgradeToMember").disabled = true;
+  }
+
+  if(v.faith >= increasedWorkHourCost && increasedWorkHour == false){
+    document.getElementById("btIncreasedWorkHour").disabled = false;
+  } else {
+    document.getElementById("btIncreasedWorkHour").disabled = true;
   }
 
 
@@ -626,6 +686,7 @@ function loadGame(){
 
 function deleteSave(){
 	localStorage.removeItem("save");
+    location.reload();
 }
 
 
@@ -639,7 +700,7 @@ function deleteSave(){
 
 
 function activateTestMode(){
-	if(modeTest === "no"){
+	if(modeTest == "no"){
 		v.timeMultiplier = 1000;
 		modeTest = "yes"
 		document.getElementById("saveGameDisplay").innerHTML = modeTest;
@@ -667,7 +728,7 @@ window.setInterval(function timeDay() {
     calcRecruitmentPerSec();
     autoRecruit();
 
-    eventLogChecker();
+    logUpdateTimer();
     eventDisplayChecker();
 
     if(v.isControlOn == "yes"){
