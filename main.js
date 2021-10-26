@@ -1,5 +1,7 @@
 
 var v = {
+  firstGame : true,
+
   money : 0,
   faith : 0,
   experience : 0,
@@ -7,6 +9,9 @@ var v = {
 
   moneyPerWorkDay : 20,
   faithPerWorkDay : 1,
+
+  moneyPerWorkDayMultiplier : 1,
+  faithPerWorkDayMultiplier : 1,
 
   sympathizer : 0,
   cultist : 0,
@@ -45,6 +50,8 @@ var v = {
 
   sympToCultCost : 1000,
 
+  preachingMoneyMultiplier : 0,
+
   timeMultiplier : 1,
 
   daysElapsed: 0,
@@ -56,46 +63,6 @@ var v = {
 
 /* ----- UPGRADES ----- */
   
-  // oRevenueSharing : {
-  //   bought : false,
-  //   cost : 500,
-  //   gain : 0.1,
-  //   modif : "passiveIncome",
-  //   btName : "btRevenueSharing",
-  // }
-
-  revenueSharing : false,
-  revenueSharingCost : 500,
-  revenueSharingGain : 0.1,
-  revenueSharingModif : "passiveIncome",
-
-  askARaise : false,
-  askARaiseLevel : 0,
-  askARaiseCost : 100,
-  askARaiseGain : 0.05,
-  askARaiseModif : "moneyMultiplier",
-
-  buyComputer : false,
-  buyComputerGain : 10,
-  buyComputerCost : 500,
-  buyComputerModif : "recruitChance",
-
-  socialNetworking : false,
-  socialNetworkingGain : 10,
-  socialNetworkingCost : 500,
-  socialNetworkingModif : "recruitChance",
-
-  selfBetterment : false,
-  selfBettermentGain : 10,
-  selfBettermentCost : 2000,
-  selfBettermentModif : "moneyPerSec",
-  selfBettermentMultiplier : 0,
-
-  increasedWorkHour : false,
-  increasedWorkHourGainC : 10,
-  increasedWorkHourGainM : 0.5,
-  increasedWorkHourCost : 50000,
-
 
 }
 
@@ -114,6 +81,7 @@ var currentAction = "none";
 
 var modeTest = "no";
 
+
 /* ----- LAUNCH ----- */
 
 
@@ -122,33 +90,17 @@ function initialize() {
     document.body.style.zoom = 0.7;
 
 	if (localStorage.getItem("save") !== null) {
+        v.firstGame = false;
 		loadGame();
+        initializeUpg();
 		currentDay.setDate(currentDay.getDate() + v.daysElapsed);
 	}
-
-	if (v.revenueSharing === true) {
-		document.getElementById("btRevenueSharing").disabled = true;
-	}
-	if (v.buyComputer === true){
-		document.getElementById("btBuyComputer").disabled = true;
-		document.getElementById("btsocialNetworking").style.display = "inline";
-	}
-	if (v.socialNetworking === true){
-		document.getElementById("btsocialNetworking").disabled = true;
-	}
-	if (v.selfBetterment === true){
-		document.getElementById("btSelfBetterment").disabled = true;
-	}
-    if (v.increasedWorkHour == true){
-        document.getElementById("btIncreasedWorkHour").disabled = true;
-    }
 
     if (v.recruitPhase == true){
         document.getElementById("btRecruit").style.display = "inline";
         document.getElementById("sympathizerDiv").style.display = "inline";
     }
 
-    // document.getElementById("saveGameDisplay").innerHTML = v.oRevenueSharing.cost;
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
     document.getElementById("maxCultist").innerHTML = v.maxCultist;
@@ -167,13 +119,13 @@ function initialize() {
     document.getElementById("preachClickGain").innerHTML = v.controlPerWorkDay;
     document.getElementById("recruitChance").innerHTML = v.recruitChance;
 
-    document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
-    document.getElementById("askARaiseGain").innerHTML = (v.askARaiseGain * 100);
     document.getElementById("cultistUpgradeCost").innerHTML = v.sympToCultCost;
 
-    document.getElementById("buyComputerCost").innerHTML  = v.buyComputerCost;
 
-    document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
+
+    document.getElementById("btSocialNetworking").disabled = true;
+
+    // document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
 
 }
 
@@ -280,93 +232,54 @@ function changeWork(task) {
 }
 
 
-function buttonActivator(activeButton){
-
-}
 
 /*----- INVESTMENTS -----*/
 
-function buyComputer(){
-	if(v.money >= v.buyComputerCost){
-		v.recruitChance = v.recruitChance + v.buyComputerGain;
-		v.money = v.money - v.buyComputerCost;
-		v.buyComputer = true;
-		document.getElementById("recruitChance").innerHTML = v.recruitChance;
-		document.getElementById("btBuyComputer").disabled = true;
-	}
+
+function upgradeActivator(upgradeName){
+    if(eval(upgradeName).isAffordable() == true){
+        let values = eval(upgradeName).activateUpgrade();
+        let costType = values[0];
+        let costValue = values[1];
+        let gainType = values[2]; 
+        let gainValue = values[3];
+        let gainType2 = values[4]; 
+        let gainValue2 = values[5];
+
+        // Déduction du coût de l'upgrade de la ressource correspondante.
+        for(let variable in v){
+            if (variable = costType){
+                v[variable] = v[variable] - costValue;
+                document.getElementById(variable).innerHTML = v[variable];
+                break;
+            }
+        }
+
+        // Ajout du gain de l'upgrade sur la ressource correspondante.
+        for(let variable in v){
+            if (variable = gainType){
+                v[variable] = v[variable] + gainValue;
+                break;
+            }
+        }
+
+        // Pareil qu'au dessus mais pour le second gain, s'il existe.
+        if(gainType2 != "undefined"){
+            for(let variable in v){
+                if (variable = gainType2){
+                    v[variable] = v[variable] + gainValue2;
+                    break;
+                }
+            }
+        }
+    } 
 }
 
 
-
-// function changeRooms(value) {
-//     if (value > 0 && money > roomsCost || value < 1 && rooms > 0) {
-//         if (value > 0) {
-//             rooms = rooms + value;
-//             updateRoomsCost();
-//             money = money - (value * roomsCost);
-//         } else if (value < 1) {
-//             rooms = rooms + value;
-//             money = money - (value * roomsCost);
-//             updateRoomsCost();
-//         }
-//         maxCultist = 3 + rooms;
-//         document.getElementById("maxCultist").innerHTML = maxCultist;
-//         document.getElementById("countRooms").value = rooms;
-//     }
-// }
 
 /* ----- UPGRADES -----*/
 
-function changeRevenueSharing() {
-  if (v.faith >= v.revenueSharingCost) {
-      v.faith = v.faith - v.revenueSharingCost;
-      v.passiveIncome = v.passiveIncome + v.revenueSharingGain;
-      document.getElementById("btRevenueSharing").disabled = true;
-      v.revenueSharing = true;
-  }
-}
 
-function changeAskARaise(){
-	if (v.experience >= v.askARaiseCost){
-		v.experience = v.experience - v.askARaiseCost;
-		v.moneyMultiplier = v.moneyMultiplier * (v.askARaiseGain + 1) ;
-		v.moneyPerWorkDay = v.moneyPerWorkDay * v.moneyMultiplier;
-		v.askARaiseCost = v.askARaiseCost *2;
-		v.askARaiseLevel = v.askARaiseLevel + 1;
-		document.getElementById("askARaiseCost").innerHTML = v.askARaiseCost;
-		v.askARaise = true;
-	}
-}
-
-function socialNetworking(){
-	if(v.experience >= v.socialNetworkingCost){
-		v.experience = v.experience - v.socialNetworkingCost;
-		v.recruitChance = v.recruitChance + v.socialNetworkingGain;
-		v.socialNetworking = true;
-		document.getElementById('ttrecruitChance').innerHTML = v.recruitChance;
-		document.getElementById("btsocialNetworking").disabled = true;
-	}
-}
-
-
-function selfBetterment(){
-	if(v.faith >= v.selfBettermentCost){
-		v.faith = v.faith - v.selfBettermentCost;
-		v.selfBetterment = true;
-		document.getElementById("btSelfBetterment").disabled = true;
-	}
-}
-
-function increasedWorkHour(){
-    if(v.faith >= v.increasedWorkHourCost){
-        v.increasedWorkHour = true;
-        v.faith = v.faith - v.increasedWorkHourCost;
-        v.moneyPerWorkDay = v.moneyPerWorkDay * (1 + v.increasedWorkHourGainM);
-        v.controlMax = v.controlMax + increasedWorkHourGainC;
-        document.getElementById("saveGameDisplay").innerHTML = v.moneyPerWorkDay;
-        document.getElementById("btIncreasedWorkHour").disabled = true;
-    }
-}
 
 
 /* ----- MOTEUR VROOM VROOM ----- */
@@ -377,11 +290,11 @@ function calcMoneyPerSec() {
     if (currentAction == "workForMoney") {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
-         + v.moneyPerWorkDay
+         + v.moneyPerWorkDay * v.moneyPerWorkDayMultiplier;
     } else {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
-         + (v.selfBettermentMultiplier * v.cultist); // if selfBetterment is not bought, or player isn't preaching, multiplier is 0.
+         + (v.preachingMoneyMultiplier * v.cultist); // if selfBetterment is not bought, or player isn't preaching, multiplier is 0.
     }
     document.getElementById("moneyPerSec").innerHTML = numberFormating(v.moneyPerSec, 1);
 }
@@ -402,12 +315,12 @@ function calcControlPerSec() {
   if (currentAction == "preach") {
     	v.experiencePerSec = 1 * v.experienceMultiplier;
     	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay;
-    	if(v.selfBetterment === true){
-    		v.selfBettermentMultiplier = 1; // Activate money gain from selfBetterment upgrade.
+    	if(selfBetterment.isActive === true){
+    		v.preachingMoneyMultiplier = 1; // Activate money gain from selfBetterment upgrade.
     	}
    } else {
    		v.controlGainPerSec = v.controlAttrition * v.cultist;
-   		v.selfBettermentMultiplier = 0; // Deactivate money gain from preaching if action <> from "preach".
+   		v.preachingMoneyMultiplier = 0; // Deactivate money gain from preaching if action <> from "preach".
    }
    if (v.controlGainPerSec > 0){
    	document.getElementById("controlSign").innerHTML = "+";
@@ -622,35 +535,12 @@ function eventDisplayChecker() {
     document.getElementById("btAskARaise").disabled = false;
   }
 
-  if (v.money >= v.buyComputerCost && v.buyComputer == false){
-    document.getElementById('btBuyComputer').disabled = false;
-  } else {
-    document.getElementById("btBuyComputer").disabled = true;
-  }
-
-  if (v.socialNetworking == false && v.experience >= v.socialNetworkingCost){
-    document.getElementById("btsocialNetworking").disabled = false;
-  } else {
-    document.getElementById("btsocialNetworking").disabled = true;
-  }
-
-  if(v.revenueSharing == false && v.faith >= v.revenueSharingCost){
-    document.getElementById("btRevenueSharing").disabled = false;
-  } else {
-    document.getElementById("btRevenueSharing").disabled = true;
-  }
-
   if(v.faith >= v.sympToCultCost){
     document.getElementById("btUpgradeToMember").disabled = false;
   } else {
     document.getElementById("btUpgradeToMember").disabled = true;
   }
 
-  if(v.faith >= increasedWorkHourCost && increasedWorkHour == false){
-    document.getElementById("btIncreasedWorkHour").disabled = false;
-  } else {
-    document.getElementById("btIncreasedWorkHour").disabled = true;
-  }
 
 
   // Ressources
@@ -675,13 +565,13 @@ function addDay() {
 
 function saveGame() {
 	localStorage.setItem("save",JSON.stringify(v));
-	// document.getElementById("saveGameDisplay").innerHTML = Object.values(v);
-	}
+    localStorage.setItem("saveUpg",JSON.stringify(upgradeList));
+}
 
 
 function loadGame(){
 	v = JSON.parse(localStorage.getItem("save"));
-	// document.getElementById("saveGameDisplay").innerHTML = Object.values(v);
+    loadedList = JSON.parse(localStorage.getItem("saveUpg"));
 }
 
 function deleteSave(){
@@ -703,11 +593,9 @@ function activateTestMode(){
 	if(modeTest == "no"){
 		v.timeMultiplier = 1000;
 		modeTest = "yes"
-		document.getElementById("saveGameDisplay").innerHTML = modeTest;
 	} else {
 		v.timeMultiplier = 1;
 		modeTest = "no"
-		document.getElementById("saveGameDisplay").innerHTML = modeTest;
 	}
 }
 
@@ -730,6 +618,8 @@ window.setInterval(function timeDay() {
 
     logUpdateTimer();
     eventDisplayChecker();
+
+    updateClickables();
 
     if(v.isControlOn == "yes"){
     	calcControlPerSec();

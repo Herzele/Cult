@@ -6,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
 <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
-
 <!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
@@ -133,7 +131,7 @@
 	<div id="Investments" class="tabcontent">
 
 	<span class="tooltip">
-		<button type="button" class="btn" id="btBuyComputer" onclick="buyComputer()">Buy a Computer</button>
+		<button type="button" class="btn" id="btBuyComputer" onclick="upgradeActivator('buyComputer')">Buy a Computer</button>
 			<span class="tooltiptext" id="ttBuyComputer">A computer will allow you to reach more people while recruiting.<br>--------------<br>
 	  		Increase your recruitment chances by 10% <br>--------------<br>
 	  		Cost : <span id="buyComputerCost"></span> money.
@@ -146,16 +144,16 @@
 	<div id="Personnal Training" class="tabcontent">
 
 	<span class="tooltip">
-		<button type="button" class="btn" id="btAskARaise" onclick="changeAskARaise()">Ask a raise</button> 
+		<button type="button" class="btn" id="btAskARaise" onclick="upgradeActivator('askARaise')">Ask a raise</button> 
 	  	<span class="tooltiptext" id="ttAskARaise">Beg for a little more money.<br>--------------<br>
 	  		Increase your revenue by <span id="askARaiseGain"></span>%<br>--------------<br>
-	  		Cost : <span id="askARaiseCost"></span>xp.
+	  		Cost : <span id="askARaiseCost"></span> xp.
 			</span>
 	</span>
 	<br>  
 
 	<span class="tooltip">
-	  <button type="button" class="btn" id="btsocialNetworking" onclick="socialNetworking()">Social Networking Training</button> 
+	  <button type="button" class="btn" id="btSocialNetworking" onclick="upgradeActivator('socialNetworking')">Social Networking Training</button> 
 	  	<span class="tooltiptext" id="ttsocialNetworking">Start using social network to recruit people<br>--------------<br>
 	  		Increase your recruitment chances by 10 %<br>--------------<br>
 	  		Cost : 500 xp.
@@ -172,9 +170,9 @@
 	<div id="Proofs of faith" class="tabcontent">
 
 		<span class="tooltip">
-			<button type="button" class="btn" id="btRevenueSharing" onclick="changeRevenueSharing()">Revenue Sharing</button>
+			<button type="button" class="btn" id="btRevenueSharing" onclick="upgradeActivator('revenueSharing')">Revenue Sharing</button>
 			<span class="tooltiptext" id="ttRevenueSharing">Your sympathizers will share a small part of their revenues<br>--------------<br>
-	  	Increase your revenue by <span id="revenueSharingGain"></span> money per day and per sympathizer.<br>--------------<br>
+	  	Increase your revenue by 0.1 money per day and per sympathizer.<br>--------------<br>
 	  	Cost : 500 faith.
 			</span>	
 		</span>
@@ -188,7 +186,7 @@
 	  </span>
 
 	  <span class="tooltip">
-	  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="increasedWorkHour()">Increased Work Hours</button> 
+	  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="upgradeActivator('increasedWorkHour')">Increased Work Hours</button> 
 	  	<span class="tooltiptext" id="ttIncreasedWorkHour">Working keeps your flock happy.<br>--------------<br>
 	  		Max control is raised by 10%, worker revenue is increased by 50%<br>--------------<br>
 	  		Cost : <span id="increasedWorkHourCost"></span> faith.
@@ -197,17 +195,12 @@
 
 	</div>
 
-
-
-
-
 </div>
 
 
 
 <div class="logs">
 	<span id="logsDisplay"></span>
-	<span id="saveGameDisplay"></span>
 </div>
 
 
@@ -218,11 +211,14 @@
 
 </div>
 
+
+<script type="text/javascript" src="upgrades.js"></script>
+<script type="text/javascript" src="main.js"></script>
+
+
 </body>
 </html>
 
 
 
 
-
-<script type="text/javascript" src="main.js"></script>
