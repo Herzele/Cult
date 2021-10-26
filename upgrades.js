@@ -125,6 +125,14 @@ function updateClickables(){
     upgradeList.forEach(instances => instances.isClickable());
 }
 
+function updateTT(){
+	for(i = 0; i < upgradeList.length; i++){
+		if(upgradeList[i].ttName != null){
+			document.getElementById(upgradeList[i].ttName).innerHTML = upgradeList[i].costValue;			
+		}
+	}
+}
+
 function initializeUpg(){
 	for(i = 0; i < upgradeList.length; i++){
 		for(y = 0; y < loadedList.length; y++){
@@ -132,10 +140,6 @@ function initializeUpg(){
 				upgradeList[i].isActive = loadedList[y].isActive;
 				upgradeList[i].costValue = loadedList[y].costValue;
 				upgradeList[i].gainValue = loadedList[y].gainValue;
-				if(upgradeList[i].ttName != null){
-					console.log(upgradeList[i].costValue);
-					document.getElementById(upgradeList[i].ttName).innerHTML = upgradeList[i].costValue;
-				}
 			}
 		}
 	}

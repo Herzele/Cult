@@ -61,8 +61,6 @@ var v = {
   recruitPhase : false,
   isXpOn : false,
 
-/* ----- UPGRADES ----- */
-  
 
 }
 
@@ -95,6 +93,7 @@ function initialize() {
         initializeUpg();
 		currentDay.setDate(currentDay.getDate() + v.daysElapsed);
 	}
+    updateTT();
 
     if (v.recruitPhase == true){
         document.getElementById("btRecruit").style.display = "inline";
