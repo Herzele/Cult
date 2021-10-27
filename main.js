@@ -10,8 +10,9 @@ var v = {
   moneyPerWorkDay : 20,
   faithPerWorkDay : 1,
 
-  moneyPerWorkDayMultiplier : 1,
-  faithPerWorkDayMultiplier : 1,
+  moneyPWDM : 1,
+  faithPWDM : 1,
+  preachingPWDM: 1,
 
   sympathizer : 0,
   cultist : 0,
@@ -93,6 +94,7 @@ function initialize() {
         initializeUpg();
 		currentDay.setDate(currentDay.getDate() + v.daysElapsed);
 	}
+
     updateTT();
 
     if (v.recruitPhase == true){
@@ -120,14 +122,11 @@ function initialize() {
 
     document.getElementById("cultistUpgradeCost").innerHTML = v.sympToCultCost;
 
-
-
     document.getElementById("btSocialNetworking").disabled = true;
 
     // document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
 
 }
-
 
 window.onload = initialize();
 
@@ -289,7 +288,8 @@ function calcMoneyPerSec() {
     if (currentAction == "workForMoney") {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
-         + v.moneyPerWorkDay * v.moneyPerWorkDayMultiplier;
+         + v.moneyPerWorkDay * v.moneyPWDM;
+         console.log(v.worker, v.workerGain, v.sympathizer, v.passiveIncome, v.moneyPerWorkDay, v.moneyPWDM);
     } else {
         v.moneyPerSec = v.worker * v.workerGain
          + v.passiveIncome * v.sympathizer
@@ -313,7 +313,7 @@ function calcFaithPerSec() {
 function calcControlPerSec() {
   if (currentAction == "preach") {
     	v.experiencePerSec = 1 * v.experienceMultiplier;
-    	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay;
+    	v.controlGainPerSec = v.controlAttrition * v.cultist + v.controlPerWorkDay * preachingPWDM;
     	if(selfBetterment.isActive === true){
     		v.preachingMoneyMultiplier = 1; // Activate money gain from selfBetterment upgrade.
     	}

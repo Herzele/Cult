@@ -2,15 +2,23 @@
 class Upgrade{
 	constructor (params){
 	this.isActive = params.isActive;
+	this.isVisible = params.isVisible;
+
 	this.level = params.level;
 	this.btName = params.btName;
 	this.ttName = params.ttName;
+
 	this.costValue = params.costValue;
 	this.costType = params.costType;
+	this.costValue2 = params.costValue2;
+	this.costType2 = params.costType2;
 	this.gainValue = params.gainValue;
 	this.gainType = params.gainType;
 	this.gainValue2 = params.gainValue2;
 	this.gainType2 = params.gainType2;
+
+	this.unlockType = params.unlockType;
+	this.unlockValue = params.unlockValue;
 
 	upgradeList.push(this);
 	}
@@ -70,55 +78,81 @@ var upgradeList = [];
 
 
 const revenueSharing = new Upgrade({
-isActive: false,
-btName: "btRevenueSharing",
-costValue: 500,
-costType: "faith",
-gainValue: 0.1,
-gainType: "passiveIncome"});
+	isActive: false,
+	isVisible: false,
+	btName: "btRevenueSharing",
+	costValue: 500,
+	costType: "faith",
+	gainValue: 0.1,
+	gainType: "passiveIncome"});
 
 const askARaise = new Upgrade({
-isActive: false,
-level: 1,
-btName: "btAskARaise",
-ttName: "askARaiseCost",
-costValue: 100,
-costType: "money",
-gainValue: 0.05,
-gainType: "moneyPerWorkDayMultiplier"});
+	isActive: false,
+	isVisible: true, 
+	level: 0,
+	btName: "btAskARaise",
+	ttName: "askARaiseCost",
+	costValue: 100,
+	costType: "experience",
+	gainValue: 0.05,
+	gainType: "moneyPWDM"});
 
 const buyComputer = new Upgrade({
-isActive: false,
-btName: "btBuyComputer",
-ttName: "buyComputerCost",
-costValue: 500,
-costType: "money",
-gainValue: 10,
-gainType: "recruitChance"});
+	isActive: false,
+	isVisible: false,
+	btName: "btBuyComputer",
+	ttName: "buyComputerCost",
+	costValue: 500,
+	costType: "money",
+	gainValue: 10,
+	gainType: "recruitChance"});
 
 const socialNetworking = new Upgrade({
-isActive: false,
-btName: "btSocialNetworking",
-costValue: 500,
-costType: "experience",
-gainValue: 10,
-gainType: "recruitChance"});
+	isActive: false,
+	isVisible: false,
+	btName: "btSocialNetworking",
+	costValue: 500,
+	costType: "experience",
+	gainValue: 10,
+	gainType: "recruitChance"});
 
 const selfBetterment = new Upgrade({
-isActive: false,
-btName: "btSelfBetterment",
-costValue: 10000,
-costType: "faith"});
+	isActive: false,
+	isVisible: false,
+	btName: "btSelfBetterment",
+	costValue: 10000,
+	costType: "faith"});
 
 const increasedWorkHour = new Upgrade({
-isActive: false,
-btName: "btIncreasedWorkHour",
-costValue: 50000,
-costType: "faith",
-gainType: "workerGain",	
-gainValue: 1,
-gainType2: "control",
-gainValue2: 10});
+	isActive: false,
+	isVisible: false,
+	btName: "btIncreasedWorkHour",
+	costValue: 50000,
+	costType: "faith",
+	gainType: "workerGain",	
+	gainValue: 1,
+	gainType2: "controlMax",
+	gainValue2: 10});
+
+const uniforms = new Upgrade({
+	isActive: false,
+	isVisible: false,
+	btName: "btUniforms",
+	ttName: "uniformsCost",
+	costValue: 5000,
+	costType: "money",
+	gainValue: 10,
+	gainType: "controlMax"});
+
+const deepVoice = new Upgrade({
+	isActive: false,
+	isVisible: false,
+	btName: "btDeepVoice",
+	ttName: "deepVoiceCost",
+	costValue: 1000,
+	costType: "experience",
+	gainValue: 0.1,
+	gainType: "preachingPWDM"});
 
 
 function updateClickables(){
@@ -140,9 +174,16 @@ function initializeUpg(){
 				upgradeList[i].isActive = loadedList[y].isActive;
 				upgradeList[i].costValue = loadedList[y].costValue;
 				upgradeList[i].gainValue = loadedList[y].gainValue;
+				upgradeList[i].isVisible = loadedList[y].isVisible;
 			}
 		}
 	}
 }
 
-
+function displayUpg(){
+	for(i = 0; i < upgradeList.length; i++){
+		if(upgradeList[i].isVisible == true){
+			document.getElementById(upgradeList[i].btName).style.display = "inline";
+		}
+	}
+}
