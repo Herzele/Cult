@@ -62,6 +62,12 @@ var v = {
   recruitPhase : false,
   isXpOn : false,
 
+  //Tab display status
+  faithProofsTab: false,
+  investmentsTab: false,
+  personnalTrainingTab: false,
+  humanRessourcesTab: false,
+
 
 }
 
@@ -95,6 +101,9 @@ function initialize() {
 		currentDay.setDate(currentDay.getDate() + v.daysElapsed);
 	}
 
+    tabChecker();
+
+    displayUpg();
     updateTT();
 
     if (v.recruitPhase == true){
@@ -231,54 +240,6 @@ function changeWork(task) {
 
 
 
-/*----- INVESTMENTS -----*/
-
-
-function upgradeActivator(upgradeName){
-    if(eval(upgradeName).isAffordable() == true){
-        let values = eval(upgradeName).activateUpgrade();
-        let costType = values[0];
-        let costValue = values[1];
-        let gainType = values[2]; 
-        let gainValue = values[3];
-        let gainType2 = values[4]; 
-        let gainValue2 = values[5];
-
-        // Déduction du coût de l'upgrade de la ressource correspondante.
-        for(let variable in v){
-            if (variable = costType){
-                v[variable] = v[variable] - costValue;
-                document.getElementById(variable).innerHTML = v[variable];
-                break;
-            }
-        }
-
-        // Ajout du gain de l'upgrade sur la ressource correspondante.
-        for(let variable in v){
-            if (variable = gainType){
-                v[variable] = v[variable] + gainValue;
-                break;
-            }
-        }
-
-        // Pareil qu'au dessus mais pour le second gain, s'il existe.
-        if(gainType2 != "undefined"){
-            for(let variable in v){
-                if (variable = gainType2){
-                    v[variable] = v[variable] + gainValue2;
-                    break;
-                }
-            }
-        }
-    } 
-}
-
-
-
-/* ----- UPGRADES -----*/
-
-
-
 
 /* ----- MOTEUR VROOM VROOM ----- */
 
@@ -343,22 +304,8 @@ function calcCultistLoss(){
 
 	if(v.control <= 0){
 		cultistRemover();
-		}
-
-	/* Roll version of the loss management. */
-
-	// if(v.cultist >= controlFinal){
-	// 	let cultistLossChance = (v.cultist - controlFinal);
-	// 	let roll = rollChances();
-	// 	document.getElementById("testDisplay1").innerHTML = cultistLossChance;
-	// 	document.getElementById("testDisplay2").innerHTML = roll;
-	// 	if(roll < cultistLossChance){
-	// 		v.cultist = v.cultist -1;
-	// 		document.getElementById("cultist").innerHTML = v.cultist;
-	// 		cultistRemover();
-	// 	}
-	// } 
 	}
+}
 
 
 function calcRecruitmentPerSec(){
@@ -459,10 +406,6 @@ function rollChances(){
 	return roll;
 }
 
-function noMoney(){
-    changeWork;
-}
-
 
 /* ----- EVENTS CHECKER -----*/
 
@@ -482,27 +425,27 @@ function logUpdateTimer() {
     }
 }
 
+function tabChecker(){
+    if(v.faithProofsTab == true){
+        document.getElementById("faithProofsTab").style.display = "inline";
+    }
+    if(v.investmentsTab == true){
+        document.getElementById("investmentsTab").style.display = "inline";
+    }
+    if(v.personnalTrainingTab == true){
+        document.getElementById("personnalTrainingTab").style.display = "inline";
+    }
+    if(v.humanRessourcesTab == true){
+        document.getElementById("humanRessourcesTab").style.display = "inline";
+    }
+}
+
 function eventDisplayChecker() {
   // Color indicators
   if (v.money <= v.bills){
   	document.getElementById("moneyDiv").style.color = "red";
   } else {
    	document.getElementById("moneyDiv").style.color = "black"
-  }
-
-  // Tabs
-  if (v.experience >= 50 || v.isXpOn == true) {
-    document.getElementById("personnalTrainingTab").style.display = "inline";
-  v.isXpOn = true;
-  }
-  if (v.sympathizer > 0){
-  	document.getElementById("faithProofsTab").style.display = "inline";
-  }
-  if (v.sympathizer > 9){
-  	document.getElementById("humanRessourcesTab").style.display = "inline";
-  }
-  if (v.money >= 2000){
-  	document.getElementById("investmentsTab").style.display = "inline";
   }
 
 
@@ -515,24 +458,6 @@ function eventDisplayChecker() {
   }
 
 
-  // Upgrades, display buttons if stage is reached
-  if(v.cultist > 0){
-    document.getElementById("btSelfBetterment").style.display = "inline";
-    document.getElementById("btIncreasedWorkHour").style.display = "inline"
-  }
-
-  if(v.recruitPhase == true){
-    document.getElementById('btBuyComputer').style.display = "inline";
-  }
-
-
-
-  // Upgrades, enable button if you have enough ressources.
-  if (v.askARaiseCost > v.experience){
-    document.getElementById("btAskARaise").disabled = true;
-  } else {
-    document.getElementById("btAskARaise").disabled = false;
-  }
 
   if(v.faith >= v.sympToCultCost){
     document.getElementById("btUpgradeToMember").disabled = false;
@@ -581,11 +506,6 @@ function deleteSave(){
 
 /* ----- UPDATES -----*/
 
-// function updateRoomsCost() {
-//     roomsCost = rooms * roomsBaseCost;
-//     document.getElementById("ttRoomsCost-").innerHTML = roomsCost;
-//     document.getElementById("ttRoomsCost+").innerHTML = ((rooms + 1) * roomsBaseCost);
-// }
 
 
 function activateTestMode(){
@@ -619,6 +539,7 @@ window.setInterval(function timeDay() {
     eventDisplayChecker();
 
     updateClickables();
+    upgChecker();
 
     if(v.isControlOn == "yes"){
     	calcControlPerSec();

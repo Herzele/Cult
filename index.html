@@ -131,7 +131,7 @@
 	<div id="Investments" class="tabcontent">
 
 	<span class="tooltip">
-		<button type="button" class="btn" id="btBuyComputer" onclick="upgradeActivator('buyComputer')">Buy a Computer</button>
+		<button type="button" class="btn" id="btBuyComputer" onclick="buyComputer.activateUpgrade()">Buy a Computer</button>
 			<span class="tooltiptext" id="ttBuyComputer">A computer will allow you to reach more people while recruiting.<br>--------------<br>
 	  		Increase your recruitment chances by 10% <br>--------------<br>
 	  		Cost : <span id="buyComputerCost"></span> money.
@@ -139,10 +139,18 @@
 	</span>
 	
 	<span class="tooltip">
-		<button type="button" class="btn" id="btUniforms" onclick="upgradeActivator('uniforms')">Uniforms</button>
+		<button type="button" class="btn" id="btUniforms" onclick="uniforms.activateUpgrade()">Uniforms</button>
 			<span class="tooltiptext" id="ttUniforms">Everyone loves uniforms, it helps to put aside what separates us.<br>--------------<br>
 	  		Increase your maximum control by 10% <br>--------------<br>
 	  		Cost : <span id="uniformsCost"></span> money.
+			</span>
+	</span>
+
+	<span class="tooltip">
+		<button type="button" class="btn" id="btChapel" onclick="chapel.activateUpgrade()">Rent Chapel</button>
+			<span class="tooltiptext" id="ttChapel">A chapel is a much better place to pray.<br>--------------<br>
+	  		Increase your maximum control by 100% <br>--------------<br>
+	  		Adds : <span id="ttChapelCost"></span> on your monthly bill.
 			</span>
 	</span>
 
@@ -151,7 +159,7 @@
 	<div id="Personnal Training" class="tabcontent">
 
 	<span class="tooltip">
-		<button type="button" class="btn" id="btAskARaise" onclick="upgradeActivator('askARaise')">Ask a raise</button> 
+		<button type="button" class="btn" id="btAskARaise" onclick="askARaise.activateUpgrade()">Ask a raise</button> 
 	  	<span class="tooltiptext" id="ttAskARaise">Beg for a little more money.<br>--------------<br>
 	  		Increase your revenue by 5%<br>--------------<br>
 	  		Cost : <span id="askARaiseCost"></span> xp.
@@ -160,7 +168,7 @@
 	<br>  
 
 	<span class="tooltip">
-	  <button type="button" class="btn" id="btSocialNetworking" onclick="upgradeActivator('socialNetworking')">Social Networking</button> 
+	  <button type="button" class="btn" id="btSocialNetworking" onclick="socialNetworking.activateUpgrade()">Social Networking</button> 
 	  	<span class="tooltiptext" id="ttsocialNetworking">Start using social network to recruit people<br>--------------<br>
 	  		Increase your recruitment chances by 10 %<br>--------------<br>
 	  		Cost : 500 xp.
@@ -169,7 +177,7 @@
 	<br> 
 
 	<span class="tooltip">
-	  <button type="button" class="btn" id="btDeepVoice" onclick="upgradeActivator('deepVoice')">Deep voice</button> 
+	  <button type="button" class="btn" id="btDeepVoice" onclick="deepVoice.activateUpgrade()">Deep voice</button> 
 	  	<span class="tooltiptext" id="ttDeepVoice">A deeper voice will make your word resonnates more.<br>--------------<br>
 	  		Increase the effectiveness of preaching by 10%<br>--------------<br>
 	  		Cost : <span id="deepVoiceCost"></span> xp.
@@ -177,16 +185,21 @@
 	</span>
 	<br> 
 
-
-
-
+	<span class="tooltip">
+	  <button type="button" class="btn" id="btStoryTelling" onclick="storyTelling.activateUpgrade()">Story-telling</button> 
+	  	<span class="tooltiptext" id="ttStoryTelling">The art of crafting a good story will help you get your point.<br>--------------<br>
+	  		Increase the effectiveness of preaching by 20% and your maximum control bu 10%.<br>--------------<br>
+	  		Cost : <span id="ttStoryTellingCost"></span> xp.
+			</span>
+	</span>
+	<br> 
 
 	</div>
 
 	<div id="Proofs of faith" class="tabcontent">
 
 		<span class="tooltip">
-			<button type="button" class="btn" id="btRevenueSharing" onclick="upgradeActivator('revenueSharing')">Revenue Sharing</button>
+			<button type="button" class="btn" id="btRevenueSharing" onclick="revenueSharing.activateUpgrade()">Revenue Sharing</button>
 			<span class="tooltiptext" id="ttRevenueSharing">Your sympathizers will share a small part of their revenues<br>--------------<br>
 	  	Increase your revenue by 0.1 money per day and per sympathizer.<br>--------------<br>
 	  	Cost : 500 faith.
@@ -194,7 +207,7 @@
 		</span>
 
 		<span class="tooltip">
-	  	<button type="button" class="btn" id="btSelfBetterment" onclick="selfBetterment()">Self Betterment teachings</button> 
+	  	<button type="button" class="btn" id="btSelfBetterment" onclick="selfBetterment.activateUpgrade()">Self Betterment teachings</button> 
 	  	<span class="tooltiptext" id="ttselfBetterment">Your preaching now help people getting better<br>--------------<br>
 	  		You now gain 1$ per cultist while preaching<br>--------------<br>
 	  		Cost : 2000 faith.
@@ -202,10 +215,26 @@
 	  </span>
 
 	  <span class="tooltip">
-	  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="upgradeActivator('increasedWorkHour')">Increased Work Hours</button> 
+	  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="increasedWorkHour.activateUpgrade()">Increased Work Hours</button> 
 	  	<span class="tooltiptext" id="ttIncreasedWorkHour">Working keeps your flock happy.<br>--------------<br>
 	  		Max control is raised by 10%, worker revenue is increased by 50%<br>--------------<br>
 	  		Cost : <span id="increasedWorkHourCost"></span> faith.
+	  	</span>
+	  </span>
+
+	 	<span class="tooltip">
+	  	<button type="button" class="btn" id="btBefriending" onclick="befriending.activateUpgrade()">Befriending</button> 
+	  	<span class="tooltiptext" id="ttBefriending">Break the barrier between you and your followers.<br>--------------<br>
+	  		Maximum control is increased by 20%<br>--------------<br>
+	  		Cost : <span id="ttBefriendingCost"></span> faith.
+	  	</span>
+	  </span>
+
+	 	<span class="tooltip">
+	  	<button type="button" class="btn" id="btWeAreFamily" onclick="weAreFamily.activateUpgrade()">We are family</button> 
+	  	<span class="tooltiptext" id="ttWeAreFamily">Strengthen your bond with your followers.<br>--------------<br>
+	  		Maximum control is increased by 30%<br>--------------<br>
+	  		Cost : <span id="ttWeAreFamilyCost"></span> faith.
 	  	</span>
 	  </span>
 
