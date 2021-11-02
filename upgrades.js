@@ -5,7 +5,7 @@ class Upgrade{
 	this.isVisible = params.isVisible;
 
 	this.btName = params.btName;
-	this.ttName = params.ttName;
+	this.ttCost = params.ttCost;
 	this.tabName = params.tabName;
 	this.triggerType = params.triggerType;
 	this.triggerValue = params.triggerValue;
@@ -35,7 +35,9 @@ class Upgrade{
 	}
 
 	isClickable(){
-		if(this.isActive == false && this.isAffordable()){
+		if(this.level != null && this.isAffordable()){
+			this.enableButton();
+		}else if(this.isActive == false && this.isAffordable()){
 			this.enableButton();
 		} else {
 			this.disableButton();
@@ -46,15 +48,6 @@ class Upgrade{
 		if((this.isActive !== true || this.level >= 0) && this.isAffordable()){
 			this.isActive = true;
 			
-			// Affiche le tab correspondant si pas déjà fait.
-			for(let variable in v){
-				if(variable == this.tabName && v[variable] == false){
-					v[variable] = true;
-					document.getElementById(this.tabName).style.display = "inline";
-					break;
-				}
-			}
-
 	        // Déduction du coût de l'upgrade de la ressource correspondante.
 	        for(let variable in v){
 	            if (variable = this.costType){
@@ -82,12 +75,13 @@ class Upgrade{
 	            }
 	        }
 
+	        // Incrémente le compteur de levels.
 			if (this.level >= 0){
 				// Update and scale cost
 				this.level = this.level + 1;
 				this.costValue = this.costValue * this.level; // Scale the cost depending on the level.
 				this.gainValue = this.gainValue * this.level;
-				document.getElementById(this.ttName).innerHTML = this.costValue;
+				document.getElementById(this.ttCost).innerHTML = this.costValue;
 			} 
 			this.disableButton();
 		}
@@ -107,9 +101,7 @@ class Upgrade{
 }
 
 var loadedList = [];
-
 var upgradeList = [];
-// var activeUpg = [];
 
 
 const askARaise = new Upgrade({
@@ -117,7 +109,7 @@ const askARaise = new Upgrade({
 	isVisible: true, 
 	level: 1,
 	btName: "btAskARaise",
-	ttName: "askARaiseCost",
+	ttCost: "ttAskARaiseCost",
 	tabName: "personnalTrainingTab",
 	costValue: 100,
 	costType: "experience",
@@ -128,28 +120,29 @@ const revenueSharing = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	btName: "btRevenueSharing",
-	tabName: "faithProofsTab",
+	tabName: "personnalTrainingTab",
+	ttCost: "ttRevenueSharingCost",
 	triggerType: "resValue",
 	triggerValue: "sympathizer",
 	triggerRes: 10,
 	costValue: 500,
-	costType: "faith",
+	costType: "experience",
 	gainValue: 0.1,
-	gainType: "passiveIncome"});
+	gainType: "moneySympM"});
 
 const buyComputer = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	triggerType: "resValue",
-	triggerValue: "money",
-	triggerRes: 1000,
+	triggerValue: "sympathizer",
+	triggerRes: 1,
 	btName: "btBuyComputer",
-	ttName: "buyComputerCost",
+	ttCost: "ttBuyComputerCost",
 	tabName: "investmentsTab",
 	costValue: 500,
 	costType: "money",
 	gainValue: 10,
-	gainType: "recruitChance"});
+	gainType: "recruitSympChance"});
 
 const socialNetworking = new Upgrade({
 	isActive: false,
@@ -158,10 +151,11 @@ const socialNetworking = new Upgrade({
 	triggerValue: "btBuyComputer",
 	btName: "btSocialNetworking",
 	tabName: "personnalTrainingTab",
+	ttCost: "ttSocialNetworkingCost",
 	costValue: 500,
 	costType: "experience",
 	gainValue: 10,
-	gainType: "recruitChance"});
+	gainType: "recruitSympChance"});
 
 const selfBetterment = new Upgrade({
 	isActive: false,
@@ -170,7 +164,8 @@ const selfBetterment = new Upgrade({
 	triggerValue: "cultist",
 	triggerRes: 1,
 	btName: "btSelfBetterment",
-	tabName: "faithProofsTab",
+	tabName: "personnalTrainingTab",
+	ttCost: "ttSelfBettermentCost",
 	costValue: 10000,
 	costType: "faith"});
 
@@ -180,9 +175,10 @@ const increasedWorkHour = new Upgrade({
 	triggerType: "upgBought",
 	triggerValue: "btWeAreFamily",
 	btName: "btIncreasedWorkHour",
-	tabName: "faithProofsTab",
+	tabName: "personnalTrainingTab",
+	ttCost: "ttIncreasedWorkHourCost",
 	costValue: 50000,
-	costType: "faith",
+	costType: "experience",
 	gainType: "workerGain",	
 	gainValue: 1,
 	gainType2: "controlMax",
@@ -195,7 +191,7 @@ const uniforms = new Upgrade({
 	triggerValue: "cultist",
 	triggerRes: 5,
 	btName: "btUniforms",
-	ttName: "uniformsCost",
+	ttCost: "ttUniformsCost",
 	tabName: "investmentsTab",
 	costValue: 5000,
 	costType: "money",
@@ -209,21 +205,22 @@ const deepVoice = new Upgrade({
 	triggerValue: "cultist",
 	triggerRes: 1,
 	btName: "btDeepVoice",
-	ttName: "deepVoiceCost",
+	ttCost: "ttDeepVoiceCost",
 	tabName: "personnalTrainingTab",
 	costValue: 1000,
 	costType: "experience",
 	gainValue: 0.1,
-	gainType: "preachingPWDM"});
+	gainType: "controlPWDM"});
 
 const chapel = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	btName: "btChapel",
-	ttName: "ttChapelCost",
+	ttCost: "ttChapelCost",
 	inTab: "investmentsTab",
 	triggerType: "upgBought",
 	triggerValue: "btUniforms",
+	tabName: "investmentsTab",
 	costType: "bills",
 	costValue: 1000,
 	gainType: "controlMax",
@@ -233,13 +230,14 @@ const storyTelling = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	btName: "btStoryTelling",
-	ttName: "ttStoryTellingCost",
+	ttCost: "ttStoryTellingCost",
 	inTab: "personnalTrainingTab",
 	triggerType: "upgBought",
 	triggerValue: "btDeepVoice",
+	tabName: "personnalTrainingTab",
 	costType: "experience",
 	costValue: 5000,
-	gainType: "preachingPWDM",
+	gainType: "controlPWDM",
 	gainValue: 0.2,
 	gainType2: "controlMax",
 	gainValue2: 10});
@@ -249,11 +247,11 @@ const befriending = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	btName: "btBefriending",
-	ttName: "ttBefriendingCost",
-	inTab: "faithProofsTab",
+	ttCost: "ttBefriendingCost",
+	tabName: "personnalTrainingTab",
 	triggerType: "upgBought",
 	triggerValue: "btSelfBetterment",
-	costType: "faith",
+	costType: "experience",
 	costValue: 5000,
 	gainType: "controlMax",
 	gainValue: 20});
@@ -263,11 +261,11 @@ const weAreFamily = new Upgrade({
 	isActive: false,
 	isVisible: false,
 	btName: "btWeAreFamily",
-	ttName: "ttWeAreFamilyCost",
-	inTab: "faithProofsTab",
+	ttCost: "ttWeAreFamilyCost",
+	tabName: "personnalTrainingTab",
 	triggerType: "upgBought",
 	triggerValue: "btBefriending",
-	costType: "faith",
+	costType: "experience",
 	costValue: 20000,
 	gainType: "controlMax",
 	gainValue: 30});
@@ -281,8 +279,8 @@ function updateClickables(){
 
 function updateTT(){
 	for(i = 0; i < upgradeList.length; i++){
-		if(upgradeList[i].ttName != null){
-			document.getElementById(upgradeList[i].ttName).innerHTML = upgradeList[i].costValue;			
+		if(upgradeList[i].ttCost != null){
+			document.getElementById(upgradeList[i].ttCost).innerHTML = upgradeList[i].costValue;			
 		}
 	}
 }
@@ -295,15 +293,17 @@ function initializeUpg(){
 				upgradeList[i].costValue = loadedList[y].costValue;
 				upgradeList[i].gainValue = loadedList[y].gainValue;
 				upgradeList[i].isVisible = loadedList[y].isVisible;
+				upgradeList[i].level = loadedList[y].level;
 			}
 		}
 	}
 }
 
-function displayUpg(){
+function initUpgDisplay(){
 	for(i = 0; i < upgradeList.length; i++){
 		if(upgradeList[i].isVisible == true){
 			document.getElementById(upgradeList[i].btName).style.display = "inline";
+			document.getElementById(upgradeList[i].tabName).style.display = "inline";
 		} else {
 			document.getElementById(upgradeList[i].btName).style.display = "none";
 		}
@@ -311,25 +311,36 @@ function displayUpg(){
 }
 
 function upgChecker(){
-	for(i = 0; i < upgradeList.length; i++){
-		if(upgradeList[i].triggerType == "upgBought"){
-			for(y = 0; y < upgradeList.length; y++){
-				if(upgradeList[i].triggerValue == upgradeList[y].btName && upgradeList[y].isActive == true){
+	for(i = 0; i < upgradeList.length; i++){ // Boucle la liste des upgrades à afficher
+		if(upgradeList[i].triggerType == "upgBought"){ // Vérifie le type d'évènement affichant l'upgrade
+			for(y = 0; y < upgradeList.length; y++){ // Boucle sur les upgrades déjà actives
+				if(upgradeList[i].triggerValue == upgradeList[y].btName && upgradeList[y].isActive == true && upgradeList[i].isVisible == false){ 
 					upgradeList[i].isVisible = true;
+					document.getElementById(upgradeList[i].tabName).style.display = "inline";					
 					document.getElementById(upgradeList[i].btName).style.display = "inline";
 				}
 			}
 		} else if(upgradeList[i].triggerType == "resValue"){
 			for(let variable in v){
-				if(variable == upgradeList[i].triggerValue && v[variable] >= upgradeList[i].triggerRes){
+				if(variable == upgradeList[i].triggerValue && v[variable] >= upgradeList[i].triggerRes && upgradeList[i].isVisible == false){
 					upgradeList[i].isVisible = true;
+					document.getElementById(upgradeList[i].tabName).style.display = "inline";	
 					document.getElementById(upgradeList[i].btName).style.display = "inline";
 				}
 			}
 		} else if(upgradeList[i].triggerType == "time"){
-			if(v.daysElapsed >= upgradeList[i].triggerValue){
+			if(v.daysElapsed >= upgradeList[i].triggerValue && upgradeList[i].isVisible == false){
 				upgradeList[i].isVisible = true;
+				document.getElementById(upgradeList[i].tabName).style.display = "inline";	
 				document.getElementById(upgradeList[i].btName).style.display = "inline";
+			}
+		} else if(upgradeList[i].triggerType == "upgLevel"){
+			for(y = 0; y < upgradeList.length; y++){
+				if(upgradeList[i].triggerValue == upgradeList[y].btName && upgradeList[y].level >= upgradeList[i].triggerRes && upgradeList[i].isVisible == false){
+					upgradeList[i].isVisible = true;
+					document.getElementById(upgradeList[i].tabName).style.display = "inline";					
+					document.getElementById(upgradeList[i].btName).style.display = "inline";
+				}	
 			}
 		}
 	}
