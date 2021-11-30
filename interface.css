@@ -24,7 +24,6 @@
   border: 1px solid black;
   margin-left: 1%;
   margin-right: 1%;
-
 }
 
 .logs {
@@ -102,6 +101,14 @@
   display: none;
 }
 
+#adeptDiv{
+  display: none;
+}
+
+#cultistDiv{
+  display: none;
+}
+
 #control{
   display: none;
   vertical-align: middle;
@@ -117,7 +124,7 @@
   margin-bottom: 3px;
 }*/
 
-#btRecruit{
+#btRecruitSymp{
   display: none;
 }
 
@@ -130,7 +137,7 @@
 }
 
 .btn{
-  width: 15%;
+  width: 20%;
 }
 
 .btnSmall{
@@ -144,6 +151,14 @@
 
 #currentlyRecruiting{
   font-style: italic;
+}
+
+#btConvertAdp{
+  display: none;
+}
+
+#cultistUpgrader{
+  display: none;
 }
 
 /* -------------------- HUMAN RESSOURCES -------------------- */
@@ -173,6 +188,10 @@
   margin-left: 1%;
   margin-right: 1%;
 
+}
+
+#hideUpgS {
+  float: right;
 }
 
 /* -------------------- UPGRADES -------------------- */

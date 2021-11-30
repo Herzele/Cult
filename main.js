@@ -2,33 +2,37 @@
 var v = {
   firstGame : true,
 
+// General
+  actionM: 10,  
+
 // Money 
-  money : 5000,
-  moneyPWD : 20,
-  moneyPerSec : 0,
-  moneyPWDM : 1,
-  moneyMultiplier : 1,
-  moneySympM : 0,
-  workerM : 1,
-  preachMoneyM : 0,
+  money: 0,
+  moneyPerSec: 0,
+  moneyPWD: 20,
+  moneyPWDM: 1,
+  moneyMultiplier: 1,
+  moneySympM: 0,
+  workerM: 1,
+  preachMoneyM: 0,
 
   bills : 400,
 
 // Faith
-  faith : 5000,
-  faithPWD : 1,
-  faithPWDM : 1,
-  faithPWDM : 1,
-  faithSympM : 0.1,
-  faithPerSec : 0,
-  priestGain : 1,
+  faith: 0,
+  faithPWD: 1,
+  faithPWDM: 1,
+  faithSympM: 0.1,
+  faithPerSec: 0,
+  allFaithM: 1,
+  priestGain: 1,
 
 // Experience
-  experience : 0,
-  experiencePWD : 0,
-  experiencePWDM : 1,
-  passiveExperience : 0,
-  passiveExperienceM : 0,
+  experience: 0,
+  experiencePerSec: 0,
+  experiencePWD: 1,
+  experiencePWDM: 1,
+  passiveExperience: 0,
+  passiveExperienceM: 0,
 
 
 // Control
@@ -37,9 +41,10 @@ var v = {
   controlAttritionM : 1,
   controlPerSec : 0,
   controlPWD : 1,
-  controlPWDM: 1,
-  controlMax : 20,
-  isControlOn : false,
+  controlPWDM : 1,
+  controlMaxBase : 20,
+  controlMaxM : 1,
+  isControlOn  : false,
   controlM : 1,
   controlLossEffect : 0.1,
 
@@ -47,22 +52,31 @@ var v = {
   sympathizer : 0,
   passiveSymp : 0,
   passiveSympM : 1,
-  recruitSympChance : 10,
-  recruitSympValue : 1,
+  recruitSympRate : 0.1,
+  recruitSympM : 1,
+  recruitSympState : 0,
+  recruitSympThreshold : 100,
   sympPerSec : 0,
 
 // Adepts
   adept : 0,
+  adeptMax : 3,
+  adeptPerSec : 0,
+  adeptConvRate : 0.1,
+  adeptConvM : 1,
+  adeptConvState : 0,
+  adeptConvThreshold : 100,
   passiveAdept : 0,
   passiveAdeptM : 1,
+  inactiveAdept : 0,
 
 // Cultists
   cultist : 0,
-  maxCultist : 0,
+  cultistMax : 0,
   inactiveCultist : 0,
   worker : 0,
   priest : 0,
-  sympToCultCost : 1000,
+  adpToCultCost : 1000,
 
 
   timeMultiplier : 1,
@@ -99,6 +113,7 @@ var currentAction = "none";
 var modeTest = "no";
 
 
+
 /* ----- LAUNCH ----- */
 
 
@@ -116,14 +131,16 @@ function initialize() {
     initUpgDisplay();
     updateTT();
 
-    if (v.recruitPhase == true){
-        document.getElementById("btRecruit").style.display = "inline";
-        document.getElementById("sympathizerDiv").style.display = "inline";
-    }
+    // if (v.recruitPhase == true){
+    //     document.getElementById("btRecruitSymp").style.display = "inline";
+    //     document.getElementById("sympathizerDiv").style.display = "inline";
+    // }
 
     document.getElementById("experience").innerHTML = v.experience;
     document.getElementById("sympathizer").innerHTML = v.sympathizer;
-    document.getElementById("maxCultist").innerHTML = v.maxCultist;
+    document.getElementById("adept").innerHTML = v.adept;
+    document.getElementById("maxAdp").innerHTML = v.adeptMax;
+    document.getElementById("cultistMax").innerHTML = v.cultistMax;
     document.getElementById("controlMax").innerHTML = v.controlMax;
     document.getElementById("cultist").innerHTML = v.cultist;
     document.getElementById("countWorker").value = v.worker;
@@ -137,13 +154,9 @@ function initialize() {
     document.getElementById("moneyClickGain").innerHTML = v.moneyPWD;
     document.getElementById("faithClickGain").innerHTML = v.faithPWD;
     document.getElementById("preachClickGain").innerHTML = v.controlPWD;
-    document.getElementById("recruitSympChance").innerHTML = v.recruitSympChance;
 
-    document.getElementById("cultistUpgradeCost").innerHTML = v.sympToCultCost;
+    document.getElementById("cultistUpgradeCost").innerHTML = v.adpToCultCost;
 
-    document.getElementById("btSocialNetworking").disabled = true;
-
-    // document.getElementById("revenueSharingGain").innerHTML = v.revenueSharingGain;
 
 }
 
@@ -175,14 +188,14 @@ function moveControlBar(value){
 
 function convertPeople(from, value){
 	switch(from){
-		case "sympathizer":
-		if (v.sympathizer > 0 && v.faith >= v.sympToCultCost){
-				v.sympathizer = v.sympathizer - value;
-				v.faith = v.faith - v.sympToCultCost;
+		case "adept":
+		if (v.adept > 0 && v.faith >= v.adept){
+				v.adept = v.adept - value;
+				v.faith = v.faith - v.adpToCultCost;
 				v.cultist = v.cultist + value;
 				v.inactiveCultist = v.inactiveCultist + value;
 			document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);			
-			document.getElementById("sympathizer").innerHTML = numberFormating(v.sympathizer, 0);
+			document.getElementById("adept").innerHTML = numberFormating(v.adept, 0);
 			document.getElementById("cultist").innerHTML = numberFormating(v.cultist, 0);
 		}
 		break;
@@ -191,24 +204,24 @@ function convertPeople(from, value){
 
 
 function changeWorker(value) {
-    if (v.inactiveCultist > 0 && value > 0 || value < 0 && v.worker > 0) {
+    if (v.inactiveAdept > 0 && value > 0 || value < 0 && v.worker > 0) {
         v.worker = v.worker + value;
-        v.inactiveCultist = v.inactiveCultist - value;
+        v.inactiveAdept = v.inactiveAdept - value;
         calcMoney();
-        document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);
+        document.getElementById("countInactive").value = numberFormating(v.inactiveAdept, 0);
         document.getElementById("countWorker").value = v.worker;
-        document.getElementById("inactiveCultist").innerHTML = v.inactiveCultist;
+        document.getElementById("inactiveAdept").innerHTML = v.inactiveAdept;
     }
 }
 
 function changePriest(value) {
-    if (v.inactiveCultist > 0 && value > 0 || value < 0 && v.priest > 0) {
+    if (v.inactiveAdept > 0 && value > 0 || value < 0 && v.priest > 0) {
         v.priest = v.priest + value;
-        v.inactiveCultist = v.inactiveCultist - value;
+        v.inactiveAdept = v.inactiveAdept - value;
         calcFaith();
-        document.getElementById("countInactive").value = numberFormating(v.inactiveCultist, 0);
+        document.getElementById("countInactive").value = numberFormating(v.inactiveAdept, 0);
         document.getElementById("countPriest").value = v.priest;
-        document.getElementById("inactiveCultist").innerHTML = v.inactiveCultist;
+        document.getElementById("inactiveAdept").innerHTML = v.inactiveAdept;
     }
 }
 
@@ -220,35 +233,44 @@ function changeWork(task) {
             currentAction = "workForFaith";
             document.getElementById("btPray").disabled = true;
             document.getElementById("btWork").disabled = false;
-            document.getElementById("btRecruit").disabled = false;
+            document.getElementById("btRecruitSymp").disabled = false;
             document.getElementById("btPreach").disabled = false;
+            document.getElementById("btConvertAdp").disabled = false;
             break;
         case "work":
             currentAction = "workForMoney";
             document.getElementById("btWork").disabled = true;
             document.getElementById("btPray").disabled = false;
-            document.getElementById("btRecruit").disabled = false;
+            document.getElementById("btRecruitSymp").disabled = false;
             document.getElementById("btPreach").disabled = false;
+            document.getElementById("btConvertAdp").disabled = false;
             break;
-        case "recruit":
-        		currentAction = "recruit";
+        case "recruitSymp":
+        	currentAction = "recruitSymp";
             document.getElementById("btWork").disabled = false;
             document.getElementById("btPray").disabled = false;
-            document.getElementById("btRecruit").disabled = true;
+            document.getElementById("btRecruitSymp").disabled = true;
             document.getElementById("btPreach").disabled = false;
+            document.getElementById("btConvertAdp").disabled = false;
             break;
         case "preach":
-        		currentAction = "preach";
+        	currentAction = "preach";
             document.getElementById("btWork").disabled = false;
             document.getElementById("btPray").disabled = false;
-            document.getElementById("btRecruit").disabled = false;
+            document.getElementById("btRecruitSymp").disabled = false;
             document.getElementById("btPreach").disabled = true;
+            document.getElementById("btConvertAdp").disabled = false;
             break;	
-
+        case "convertAdp":
+            currentAction = "convertAdp";
+            document.getElementById("btWork").disabled = false;
+            document.getElementById("btPray").disabled = false;
+            document.getElementById("btRecruitSymp").disabled = false;
+            document.getElementById("btPreach").disabled = false;
+            document.getElementById("btConvertAdp").disabled = true;
+            break;  
     }
 }
-
-
 
 
 /* ----- MOTEUR VROOM VROOM ----- */
@@ -258,7 +280,7 @@ function changeWork(task) {
 function calcMoney(){
     let workMoney = 0;
     if(currentAction == "workForMoney"){
-        workMoney = v.moneyPWD * v.moneyPWDM;           // Money generated by the player working.
+        workMoney = v.moneyPWD * v.moneyPWDM * v.actionM;           // Money generated by the player working.
     }
     v.moneyPerSec = v.worker * v.workerM                // Cultist working
     + v.sympathizer * v.moneySympM                      // Sympathizer money
@@ -276,14 +298,14 @@ function calcMoney(){
 function calcFaith(){
     let workFaith = 0;
     if(currentAction == "workForFaith"){
-        workFaith = v.faithPWD * v.faithPWDM;
+        workFaith = v.faithPWD * v.faithPWDM * v.actionM;
     }
     v.faithPerSec = v.priest * v.priestGain             // Priest faith
     + v.sympathizer * v.faithSympM                      // Sympathizer faith
     + workFaith;                                        // Add the faith generated by the player, calculated above
 
     // Add faith gain per sec to the total money amount    
-    v.faith = v.faith + v.faithPerSec * v.timeMultiplier;
+    v.faith = v.faith + (v.faithPerSec * v.allFaithM * v.timeMultiplier);
 
     // Update the HTML with the ressource generated by second :
     document.getElementById("faithPerSec").innerHTML = numberFormating(v.faithPerSec, 1); 
@@ -293,11 +315,11 @@ function calcFaith(){
 
 function calcExperience() {
     if (currentAction != "none") {
-        v.experiencePWD = 1 * v.experiencePWDM; // If the player is active, gain xp.
+        v.experiencePerSec = v.experiencePWD * v.experiencePWDM; // If the player is active, gain xp.
     }
 
     // Add experience gain per sec to the total experience amount
-    v.experience = v.experience + v.experiencePWD * v.timeMultiplier;
+    v.experience = v.experience + v.experiencePerSec * v.timeMultiplier;
 
     // Update the HTML with the ressource generated by second :
     document.getElementById("experience").innerHTML = numberFormating(v.experience, 1);
@@ -306,22 +328,25 @@ function calcExperience() {
 
 
 function calcControl(){
+    v.controlMax = v.controlMaxM * v.controlMaxBase;
+    document.getElementById("controlMax").innerHTML = v.controlMax;
+
     let workPreach = 0;
-    if(currentAction == "preach"){                              // Control generated by the player preaching
-        workPreach = v.controlPWD * v.controlPWDM;
+    if(currentAction == "preach"){                                // Control generated by the player preaching
+        workPreach = v.controlPWD * v.controlPWDM * v.actionM;
     }
 
-    v.controlPerSec = v.controlAttrition * controlAttritionM    // Calculate control attrition
+    v.controlPerSec = v.controlAttrition * v.controlAttritionM    // Calculate control attrition
     * v.cultist
-    + workPreach;                                               // Add the control gained by the player preaching
+    + workPreach;                                                 // Add the control gained by the player preaching
 
-    if(selfBetterment.isActive == true){                        // Activate the money gain when preaching if the player is preaching
+    if(selfBetterment.isActive == true){                          // Activate the money gain when preaching if the player is preaching
         v.preachMoneyM = 1;
     } else {
         v.preachMoneyM = 0;
     }
 
-    if(v.control <= 0 && v.cultist > 0){                        // Check if you can control your cultist, and remove one if necessary
+    if(v.control <= 0 && v.cultist > 0){                          // Check if you can control your cultist, and remove one if necessary
         cultistRemover();
     }
 
@@ -333,7 +358,7 @@ function calcControl(){
 
     // Update the HTML with the ressource generated by second :
     document.getElementById("controlPerSec").innerHTML = numberFormating(v.controlPerSec, 1);
-    document.getElementById("maxCultist").innerHTML = numberFormating(v.maxCultist, 0);
+    document.getElementById("cultistMax").innerHTML = numberFormating(v.cultistMax, 0);
     document.getElementById("controlValue").innerHTML = numberFormating(v.control, 1);
 
     // Color the HTML to indicate if you risk losing cultist
@@ -344,31 +369,58 @@ function calcControl(){
     }
 }
 
-function calcRecruitment(){
+function calcRecSymp(){
     // Active recruitment management
-    let activeRecruit = 0;
-    if(currentAction === "recruit"){
-        document.getElementById("currentlyRecruiting").innerHTML = "Recruiting...";                 // Indicate that the current action is recruiting
-        let roll = rollChances();                                                                     
-        if (roll <= v.recruitSympChance){                                                               // Roll to know if you recruit someone
-            activeRecruit = activeRecruit + v.recruitSympValue;                                        // If the roll is successful, add a sympathizer           
-        } 
-    } else {
-        document.getElementById("currentlyRecruiting").innerHTML = " ";                             // Hide recruiting text if you're not recruiting
+    let currentRecruit = 0;
+    if(currentAction === "recruitSymp"){ 
+        v.recruitSympState = v.recruitSympState + v.recruitSympRate * v.recruitSympM * v.actionM;
+    } 
+    v.recruitSympState = v.recruitSympState + v.passiveSymp * v.passiveSympM;
+
+    document.getElementById("recruitSympRate").innerHTML = numberFormating(v.recruitSympRate, 1);
+    document.getElementById("recruitSympTh").innerHTML = numberFormating(v.recruitSympState, 1);
+
+    if(v.recruitSympState >= v.recruitSympThreshold){
+        currentRecruit = currentRecruit + 1;
+        v.recruitSympState = v.recruitSympState -100;
     }
-    v.sympPerSec = activeRecruit 
-    + v.passiveSymp * v.passiveSympM;
+
 
     // Add sympathizers gain per sec to the total sympathizers amount
-    v.sympathizer = v.sympathizer + v.sympPerSec * v.timeMultiplier; 
+    v.sympathizer = v.sympathizer + currentRecruit * v.timeMultiplier; 
     document.getElementById("sympathizer").innerHTML = numberFormating(v.sympathizer, 0);           // Update the HTML with the new sympathizer number
 }
 
-function cultistRemover(){
-	v.cultist = v.cultist - 1;
-    document.getElementById("cultist").innerHTML = v.cultist;
-	if(v.inactiveCultist > 0){
-		v.inactiveCultist = v.inactiveCultist - 1;
+function calcConvAdp(){
+    let adeptRecruit = 0;
+    if(v.adept < v.adeptMax){
+    if(currentAction === "convertAdp"){
+        v.adeptConvState = v.adeptConvState + v.adeptConvRate * v.actionM;
+        if(v.adeptConvState >= v.adeptConvThreshold && v.adept <= v.adeptMax){                       // Check if the adpet counter has reached the threshold
+            v.adeptConvState = v.adeptConvState -100;                                                // Reset the adpet counter
+            adeptRecruit = adeptRecruit +1;                                                         
+        }
+        document.getElementById("convCurrentValue").innerHTML = numberFormating(v.adeptConvState, 1);
+    }
+
+    } else {
+        document.getElementById("convCurrentValue").innerHTML = "MAX";                              // If the current value of adept is = to max, stop recruiting
+    }
+
+    v.adeptPerSec = adeptRecruit 
+    + v.passiveAdept * v.passiveAdeptM;
+
+    // Add sympathizers gain per sec to the total sympathizers amount
+    v.adept = v.adept + v.adeptPerSec; 
+    document.getElementById("convertAdpRate").innerHTML = numberFormating(v.adeptConvRate, 1);
+    document.getElementById("adept").innerHTML = numberFormating(v.adept, 0);                       // Update the HTML with the new sympathizer number
+}
+
+function adeptRemover(){
+	v.adept = v.adept - 1;
+    document.getElementById("adept").innerHTML = v.adept;
+	if(v.inactiveAdept > 0){
+		v.inactiveAdept = v.inactiveAdept - 1;
 		document.getElementById("countInactive").value = v.inactiveCultist;
 	} else if(v.worker > 0) {
 		v.worker = v.worker - 1;
@@ -415,6 +467,40 @@ function rollChances(){
 
 /* ----- EVENTS CHECKER -----*/
 
+var cbUpgrade1 = document.querySelector("input[id=hideUpg1]");
+var cbUpgrade2 = document.querySelector("input[id=hideUpg2]");
+var cbUpgrade3 = document.querySelector("input[id=hideUpg3]");
+
+cbUpgrade1.addEventListener('change', function(){hideUpgChecker(cbUpgrade1); });
+cbUpgrade2.addEventListener('change', function(){hideUpgChecker(cbUpgrade2); });
+cbUpgrade3.addEventListener('change', function(){hideUpgChecker(cbUpgrade3); });
+
+function hideUpgChecker(cbName){
+  console.log(cbName.checked);
+  if (cbName.checked == true) {
+    cbUpgrade1.checked = true;
+    cbUpgrade2.checked = true;
+    cbUpgrade3.checked = true;
+    for(i = 0; i < upgradeList.length; i ++){
+        if(upgradeList[i].isActive == true && upgradeList[i].level == null){
+            document.getElementById(upgradeList[i].btName).style.display = "none";
+        }
+    }
+  } else {
+    cbUpgrade1.checked = false;
+    cbUpgrade2.checked = false;
+    cbUpgrade3.checked = false;
+    for(i = 0; i < upgradeList.length; i ++){
+        if(upgradeList[i].isActive == true && upgradeList[i].level == null){
+            document.getElementById(upgradeList[i].btName).style.display = "inline";
+        }
+    }
+  }
+}
+
+
+
+
 function logUpdateTimer() {
     if (v.daysElapsed == 30) {
       updateLogs("My life is boring", "me");
@@ -444,12 +530,12 @@ function eventDisplayChecker() {
   // Divs 
   if (v.faith > 49 && v.recruitPhase != true){
     v.recruitPhase = true;
-  	document.getElementById("btRecruit").style.display = "inline";
+  	document.getElementById("btRecruitSymp").style.display = "inline";
   	document.getElementById("sympathizerDiv").style.display = "inline";
     updateLogs("Go, Sheperd, and gather your flock", "voice"); 
   }
 
-  if(v.faith >= v.sympToCultCost){
+  if(v.faith >= v.adpToCultCost){
     document.getElementById("btUpgradeToMember").disabled = false;
   } else {
     document.getElementById("btUpgradeToMember").disabled = true;
@@ -460,20 +546,25 @@ function eventDisplayChecker() {
     document.getElementById("humanRessourcesTab").style.display = "inline";
   }
 
-  if (v.cultist > 0){
+  if (v.adept >= 10){
   	document.getElementById("cultistDiv").style.display = "inline";
   	document.getElementById("control").style.display = "inline";
-  	document.getElementById("workerRepartition").style.display = "inline";
   	document.getElementById("btPreach").style.display = "inline";
   	v.isControlOn = true;
+  }
+
+  if (v.adept > 0){
+    document.getElementById("workerRepartition").style.display = "inline";    
   } 
 
   if (v.daysElapsed >= 72){
   	document.getElementById("btPray").style.display = "inline";
   }
 
-  //Update TT
-  document.getElementById("recruitSympChance").innerHTML = v.recruitSympChance;
+  if(v.sympathizer >= 10){
+    document.getElementById("btConvertAdp").style.display = "inline";
+  }
+
 }
 
 function addDay() {
@@ -522,12 +613,14 @@ window.setInterval(function timeDay() {
     calcMoney();
     calcFaith();
     calcExperience();
-    calcRecruitment();
+    calcRecSymp();
+    calcConvAdp();
 
     logUpdateTimer();
     eventDisplayChecker();
 
     updateClickables();
+    updateTT();
     upgChecker();
 
     if(v.isControlOn == true){

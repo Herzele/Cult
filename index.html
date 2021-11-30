@@ -34,15 +34,15 @@
   <div><span class="tooltip">Monthly bills : <span class="tooltiptext" id="ttSympathizer">Due the first day of each month.</span></span>
   	<span id="bills"></span></div>
   --------------<br>
-  <div id="sympathizerDiv"> Sympathizer : <span id="sympathizer"></span> / <span id="currentlyRecruiting"></div> 
+  <div id="sympathizerDiv"> Sympathizer : <span id="sympathizer"></span> - <span id="recruitConvValue"></span><span id="recruitSympTh"></span> %</div> 
   <br>
-  <div id="adeptDiv">Adepts : <span id="adept"></span></div>
+  <div id="adeptDiv">Adepts : <span id="adept"></span> / <span id="maxAdp"></span> - <span id="convCurrentValue"></span> %</div>
   <div id="cultistDiv">Cultist : <span id="cultist"></span></div> 
   <div>------</div>
   <div>Experience : <span id="experience"></span> + <span id="experiencePWD"></span> / day</div>
   <div>------</div>
   <div id="control"><div class="tooltip">Control : <span id="controlValue"></span>% <span id="controlSign"></span><span id="controlPerSec"></span> / day
-	  <span class="tooltiptext" id="ttControl">You need to keep your flock together.<br>--------------<br> You current control allows for <span id="maxCultist"></span> cultists without risks.<br>--------------<br>Max control : <span id="controlMax"></span>%</span></div></div>
+	  <span class="tooltiptext" id="ttControl">You need to keep your flock together.<br>--------------<br> You current control allows for <span id="cultistMax"></span> cultists without risks.<br>--------------<br>Max control : <span id="controlMax"></span>%</span></div></div>
 	
 
 
@@ -52,8 +52,8 @@
 
 	<div class="tab">
 	  <button class="tablinks" id="actionsTab" onclick="openTab(event, 'Actions')">Actions</button>
-	  <button class="tablinks" id="faithProofsTab" onclick="openTab(event, 'Proofs of faith')">Proofs of faith</button>
 	  <button class="tablinks" id="humanRessourcesTab" onclick="openTab(event, 'Human Resources')">Human Resources</button>
+	  <button class="tablinks" id="faithProofsTab" onclick="openTab(event, 'Proofs of faith')">Proofs of faith</button>
 	  <button class="tablinks" id="investmentsTab" onclick="openTab(event, 'Investments')">Investments</button>
 	  <button class="tablinks" id="personnalTrainingTab" onclick="openTab(event, 'Personnal Training')">Personnal Training</button>
 	</div>
@@ -75,9 +75,16 @@
 		<br>
 
 		<span class="tooltip">
-			<button type="button" class="btn" id="btRecruit" onClick="changeWork('recruit')">Recruit</button>
-		  	<span class="tooltiptext" id="ttRecruit">Go out in the street and try to find new fidels.<br>--------------<br>Chance to recruit a sympathizer : 
-		  	<span id="recruitSympChance"></span>%</span>
+			<button type="button" class="btn" id="btRecruitSymp" onClick="changeWork('recruitSymp')">Recruit sympathizer</button>
+		  	<span class="tooltiptext" id="ttRecruit">Bait people into thinking they need you.<br>--------------<br>Sympathizer recruitment rate : 
+		  	<span id="recruitSympRate"></span></span>
+		</span>
+		<br>
+
+		<span class="tooltip">
+			<button type="button" class="btn" id="btConvertAdp" onClick="changeWork('convertAdp')">Convert to adept</button>
+		  	<span class="tooltiptext" id="ttConvertAdp">Try to convert a sympathizer into an adept.<br>--------------<br>Adept conversion rate : 
+		  	<span id="convertAdpRate"></span></span>
 		</span>
 		<br>
 
@@ -93,14 +100,7 @@
 
 	<div id="Human Resources" class="tabcontent">
 
-		<div id="cultistUpgrader">
-			<div>Convert to member : <button type="button" class="btn" id="btUpgradeToMember" onClick="convertPeople('sympathizer', 1)">
-				<div class="tooltip">+1
-					<span class="tooltiptext" id="ttConvertToCultist">Convert sympathizers into cultist.<br>--------------<br> 
-					Cost : <span id="cultistUpgradeCost"></span> Faith.</span>
-				</div>	
-			</button></div>
-		</div>	
+
 
 		<div id="workerRepartition">
 			<div class="labels">
@@ -127,125 +127,37 @@
 				</div>
 			</div>	
 		</div>
+
+		<div id="cultistUpgrader">
+			<div>Convert to cultist : <button type="button" class="btn" id="btUpgradeToMember" onClick="convertPeople('sympathizer', 1)">
+				<div class="tooltip">+1
+					<span class="tooltiptext" id="ttConvertToCultist">Convert adepts into cultist.<br>--------------<br> 
+					Cost : <span id="cultistUpgradeCost"></span> Faith.</span>
+				</div>	
+			</button></div>
+		</div>	
+
+
 	</div>
 
 	<div id="Investments" class="tabcontent">
-
-	<span class="tooltip">
-		<button type="button" class="btn" id="btBuyComputer" onclick="buyComputer.activateUpgrade()">Buy a Computer</button>
-			<span class="tooltiptext" id="ttBuyComputer">A computer will allow you to reach more people while recruiting.<br>--------------<br>
-	  		Increase your recruitment chances by 10% <br>--------------<br>
-	  		Cost : <span id="ttBuyComputerCost"></span> money.
-			</span>
-	</span>
-	
-	<span class="tooltip">
-		<button type="button" class="btn" id="btUniforms" onclick="uniforms.activateUpgrade()">Uniforms</button>
-			<span class="tooltiptext" id="ttUniforms">Everyone loves uniforms, it helps to put aside what separates us.<br>--------------<br>
-	  		Increase your maximum control by 10% <br>--------------<br>
-	  		Cost : <span id="ttUniformsCost"></span> money.
-			</span>
-	</span>
-
-	<span class="tooltip">
-		<button type="button" class="btn" id="btChapel" onclick="chapel.activateUpgrade()">Rent Chapel</button>
-			<span class="tooltiptext" id="ttChapel">A chapel is a much better place to pray.<br>--------------<br>
-	  		Increase your maximum control by 100% <br>--------------<br>
-	  		Adds : <span id="ttChapelCost"></span> to your monthly bill.
-			</span>
-	</span>
+		<span id="hideUpgS">
+			<input type="checkbox" class="hideUpg" id="hideUpg1"><label for="hideUpg1">Hide bought</label>
+		</span>
 
 	</div>
 
 	<div id="Personnal Training" class="tabcontent">
-
-	<span class="tooltip">
-		<button type="button" class="btn" id="btAskARaise" onclick="askARaise.activateUpgrade()">Ask a raise</button> 
-	  	<span class="tooltiptext" id="ttAskARaise">Beg for a little more money.<br>--------------<br>
-	  		Increase your revenue by 5%<br>--------------<br>
-	  		Cost : <span id="ttAskARaiseCost"></span> xp.
-			</span>
-	</span>
-	<br>  
-
-	<span class="tooltip">
-	  <button type="button" class="btn" id="btSocialNetworking" onclick="socialNetworking.activateUpgrade()">Social Networking</button> 
-	  	<span class="tooltiptext" id="ttsocialNetworking">Start using social network to recruit people<br>--------------<br>
-	  		Increase your recruitment chances by 10 %<br>--------------<br>
-	  		Cost : <span id="ttSocialNetworkingCost"></span> xp.
-			</span>
-	</span>
-	<br> 
-
-	<span class="tooltip">
-	  <button type="button" class="btn" id="btDeepVoice" onclick="deepVoice.activateUpgrade()">Deep voice</button> 
-	  	<span class="tooltiptext" id="ttDeepVoice">A deeper voice will make your word resonnates more.<br>--------------<br>
-	  		Increase the effectiveness of preaching by 10%<br>--------------<br>
-	  		Cost : <span id="ttDeepVoiceCost"></span> xp.
-			</span>
-	</span>
-	<br> 
-
-	<span class="tooltip">
-	  <button type="button" class="btn" id="btStoryTelling" onclick="storyTelling.activateUpgrade()">Story-telling</button> 
-	  	<span class="tooltiptext" id="ttStoryTelling">The art of crafting a good story will help you get your point.<br>--------------<br>
-	  		Increase the effectiveness of preaching by 20% and your maximum control bu 10%.<br>--------------<br>
-	  		Cost : <span id="ttStoryTellingCost"></span> xp.
-			</span>
-	</span>
-	<br> 
-
-	<span class="tooltip">
-		<button type="button" class="btn" id="btRevenueSharing" onclick="revenueSharing.activateUpgrade()"><span id="ttRevenueSharing">Revenue Sharing</span></button>
-		<span class="tooltiptext">Your sympathizers will share a small part of their revenues<br>--------------<br>
-  	Increase your revenue by 0.1 money per day and per sympathizer.<br>--------------<br>
-  	Cost : <span id="ttRevenueSharingCost"></span> xp.
-		</span>	
-	</span>
-	<br>
-
-	<span class="tooltip">
-  	<button type="button" class="btn" id="btSelfBetterment" onclick="selfBetterment.activateUpgrade()">Self Betterment teachings</button> 
-  	<span class="tooltiptext" id="ttselfBetterment">Your preaching now help people getting better<br>--------------<br>
-  		You now gain 1$ per cultist while preaching<br>--------------<br>
-  		Cost : <span id="ttSelfBettermentCost"></span> xp.
-  	</span>
-  </span>
-  <br>
-
-  <span class="tooltip">
-  	<button type="button" class="btn" id="btIncreasedWorkHour" onclick="increasedWorkHour.activateUpgrade()">Increased Work Hours</button> 
-  	<span class="tooltiptext" id="ttIncreasedWorkHour">Working keeps your flock happy.<br>--------------<br>
-  		Max control is raised by 10%, worker revenue is increased by 50%<br>--------------<br>
-  		Cost : <span id="ttIncreasedWorkHourCost"></span> xp.
-  	</span>
-  </span>
-  <br>
-
- 	<span class="tooltip">
-  	<button type="button" class="btn" id="btBefriending" onclick="befriending.activateUpgrade()">Befriending</button> 
-  	<span class="tooltiptext" id="ttBefriending">Break the barrier between you and your followers.<br>--------------<br>
-  		Maximum control is increased by 20%<br>--------------<br>
-  		Cost : <span id="ttBefriendingCost"></span> xp.
-  	</span>
-  </span>
-  <br>
-
- 	<span class="tooltip">
-  	<button type="button" class="btn" id="btWeAreFamily" onclick="weAreFamily.activateUpgrade()">We are family</button> 
-  	<span class="tooltiptext" id="ttWeAreFamily">Strengthen your bond with your followers.<br>--------------<br>
-  		Maximum control is increased by 30%<br>--------------<br>
-  		Cost : <span id="ttWeAreFamilyCost"></span> xp.
-  	</span>
-  </span>
-  <br>
+		<span id="hideUpgS">
+			<input type="checkbox" class="hideUpg" id="hideUpg2"><label for="hideUpg2">Hide bought</label>
+		</span>
 
 	</div>
 
-	<div id="Proofs of faith" class="tabcontent">
-
-
-
+	<div id="Proofs of faith" class="tabcontent">	
+		<span id="hideUpgS">
+			<input type="checkbox" class="hideUpg" id="hideUpg3"><label for="hideUpg3">Hide bought</label>
+		</span>
 	</div>
 
 </div>
@@ -261,6 +173,7 @@
 
 	<div><button type="button" class="btnSmall" id="btSave" onclick="saveGame()">SAVE</button></div>
 	<div><button type="button" class="btnSmall" id="btDelete" onclick="deleteSave()">Hard Reset</button></div>
+	<div><button type="button" class="btnSmall" id="btTest" onclick="askARaise.createHtml()">Test stuff</button></div>
 
 </div>
 
